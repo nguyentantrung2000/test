@@ -23,13 +23,35 @@
                 <!-- CONTROL BAR -->
                 <div class="control-bar">
                     <button type="button" id="add-process-btn">Add new process</button>
-                    <button type="button" id="add-cpu-btn">Add request</button>
+                    <button type="button" id="add-request-btn">Add request</button>
                     <button type="button" id="reset-btn">Reset</button>
                     <button type="run-btn" id="run-btn">Run</button>
                 </div>
 
+                <!-- OPTION BAR -->
+                <div class="option-bar">
+                    <!-- ALGORITHM -->
+                    <div>
+                        <span>Algorithm</span>
+                        <select id="algorithm-select">
+                            <option selected value="fcfs">FCFS</option>
+                            <option value="stf">SJF</option>
+                            <option value="srtf">SRTF</option>
+                            <option value="rr">Round Robin</option>
+                        </select>
+                    </div>
+
+                    <!-- OPTIONAL -->
+                    <div id="quantum-container">
+                        <span>Quantum</span>
+                        <input id="quantum-input" type="number" min="1" value="2">
+                    </div>
+                </div>
+
                 <!-- TABLE -->
                 <div id="table-area">
+                    <!-- THIS TABLE WILL BE RENDERED BY JAVASCRIPT-->
+                    <!-- 
                     <table class="form-table">
                         <thead>
                             <tr>
@@ -52,8 +74,9 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                     -->
 
+                </div>
             </form>
         </div>
     </div>
