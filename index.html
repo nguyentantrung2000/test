@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>CPU scheduling with separate I/O</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- APP BAR -->
+        <div id="app-bar">
+            <h2 id="title">CPU scheduling with separate I/O</h2>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div id="content-wrapper" class="container">
+            <form id="main-form">
+
+                <!-- CONTROL BAR -->
+                <div class="control-bar">
+                    <button type="button" id="add-process-btn">Add new process</button>
+                    <button type="button" id="add-cpu-btn">Add request</button>
+                    <button type="button" id="reset-btn">Reset</button>
+                    <button type="run-btn" id="run-btn">Run</button>
+                </div>
+
+                <!-- TABLE -->
+                <div id="table-area">
+                    <table class="form-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th>Process</th>
+                                <th>Arrival</th>
+                                <th>CPU</th>
+                                <th>IO</th>
+                                <th>CPU</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td class="process-name">P1</td>
+                                <td> <input type="text" value="0"> </td>
+                                <td> <input type="text" value="3"> </td>
+                                <td> <input type="text" value="4"> </td>
+                                <td> <input type="text" value="4"> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <script src="./main.js"></script>
+</body>
+
+</html>

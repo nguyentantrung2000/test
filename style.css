@@ -1,0 +1,133 @@
+:root {
+    --primary-color: #3f51b5;
+    --secondary-color: #f44336;
+    --accent-color: #F5F1DE;
+    --white: #ffffff;
+    --black: #000000;
+}
+
+body {
+    margin: 0px;
+}
+
+
+/* style button */
+
+button {
+    background-color: #4CAF50;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+button:hover {
+    transition: all .2s;
+    background-color: var(--black);
+}
+
+#app-bar #title {
+    margin: 0;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 30px;
+}
+
+
+/* CONTENT */
+
+.container,
+.row {
+    display: flex;
+}
+
+.container {
+    flex-direction: column;
+}
+
+#content-wrapper {
+    margin: 50px 200px;
+    background-color: var(--accent-color);
+    padding: 50px;
+    border: 1px solid var(--black)
+}
+
+@media only screen and (max-width: 1300px) {
+    #content-wrapper {
+        margin: 50px 50px;
+        background-color: var(--accent-color);
+        padding: 50px 50px;
+    }
+}
+
+#content-wrapper .row {
+    flex-direction: row;
+}
+
+
+/* table */
+
+form#main-form {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+}
+
+.form-table {
+    max-width: 100%;
+    border-collapse: collapse;
+}
+
+td.process-name,
+th {
+    padding: 5px;
+}
+
+.form-table td,
+.form-table th {
+    min-width: 30px;
+    border: 1px solid var(--black);
+}
+
+.form-table th {
+    text-align: center;
+}
+
+.form-table td {
+    text-align: center;
+}
+
+.form-table .process-name {
+    text-align: left;
+}
+
+.form-table input {
+    width: 50px;
+    height: 20px;
+    text-align: center;
+}
+
+
+/* control bar */
+
+.control-bar {
+    margin-bottom: 20px;
+    display: flex;
+}
+
+@media only screen and (max-width: 800px) {
+    .control-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.control-bar button {
+    margin-right: 20px;
+}
