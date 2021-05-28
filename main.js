@@ -1,6 +1,5 @@
 // DEFINE OBJECTS
 function ProcessList(list) {
-    console.log(list);
     this.list = list;
 
     this.add = function (process) {
@@ -19,6 +18,15 @@ function ProcessList(list) {
         this.list.forEach(item => {
             item.addNewRequest();
         })
+    }
+
+    this.clone = function () {
+        let plainObject = JSON.parse(JSON.stringify(this));
+        let processes = plainObject.list.map(p => {
+            return new Process(p.name, p.arrival, p.cpus, p.ios);
+        })
+        let processList = new ProcessList(processes);
+        return processList;
     }
 }
 
@@ -41,14 +49,21 @@ function Process(name, arrival, cpus, ios) {
 }
 
 // MAIN
-let processData = [
-    new Process('p1', 0, [3, 4], [4]),
-    new Process('p2', 1, [2, 2], [2]),
-    new Process('p3', 2, [1, 3], [1]),
-]
+function Data() {
+    this.processData = [
+        new Process('p1', 0, [3, 4], [4]),
+        new Process('p2', 1, [2, 2], [2]),
+        new Process('p3', 2, [1, 3], [1]),
+    ]
+}
+//let processData = [
+//new Process('p1', 0, [3, 4], [4]),
+//new Process('p2', 1, [2, 2], [2]),
+//new Process('p3', 2, [1, 3], [1]),
+//]
 
 // initiate values
-var processList = new ProcessList(processData.slice(0));
+var processList = new ProcessList(new Data().processData);
 var algo = 'fcfs';
 var quantum = 2;
 
@@ -61,9 +76,11 @@ function main() {
 
 // ALGORITHM
 function runAlgorithm() {
+    const curPlist = processList.clone();
     console.log('process list', processList);
     console.log('algo', algo);
     console.log('quantum', quantum);
+
 }
 
 // SETUP
@@ -93,7 +110,10 @@ function setupControlEvents() {
     })
     resetBtn.addEventListener('click', () => {
         let r = confirm('Do you want to reset?');
-        if (r) location.reload();
+        if (r) {
+            processList = new ProcessList(new Data().processData);
+            renderTable();
+        }
     })
 }
 

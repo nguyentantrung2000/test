@@ -27,9 +27,17 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button#reset-btn {
+    background-color: var(--white);
+    color: var(--black);
+    border: 1px solid black;
+}
+
+button:hover,
+button#reset-btn:hover {
     transition: all .2s;
     background-color: var(--black);
+    color: var(--white)
 }
 
 #app-bar #title {
@@ -125,6 +133,9 @@ th {
     .control-bar {
         flex-direction: column;
         align-items: flex-start;
+    }
+    .control-bar button {
+        min-width: 160px;
     }
     #content-wrapper {
         padding: 10px;
