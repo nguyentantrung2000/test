@@ -120,6 +120,7 @@ th {
 .control-bar {
     margin-bottom: 20px;
     display: flex;
+    align-items: flex-start;
 }
 
 .control-bar button {
@@ -132,7 +133,6 @@ th {
 @media only screen and (max-width: 800px) {
     .control-bar {
         flex-direction: column;
-        align-items: flex-start;
     }
     .control-bar button {
         min-width: 160px;

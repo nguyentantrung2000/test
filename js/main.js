@@ -1,96 +1,112 @@
 // ALGORITHM
 function runAlgorithm() {
     const currentProcessList = processList.clone();
-    // initiate values
+    let currentProcess = null;
+
+    // contain processes back from io
     const tempQueue = [];
-    const timeline = getTimeline(100);
+
+    // array of time
+    const timeline = getTimeline(50);
+
+    // initiate boxes
     const cpuBox = timeline.map(x => null);
     const ioBox = timeline.map(x => []);
     const readyQueue = [];
 
-    let cpuRemainTime = -1;
-    let ioRemainObject = {};
-    currentProcessList.list.forEach(p => {
-        ioRemainObject[p.name] = -1;
-    })
-    let currentProcess = null;
+    // counter
+    let ioRemainingObj = initiateIoRemainingObj(currentProcessList);
+    let cpuRemainingTime = -1;
+
 
     // loop timeline
     timeline.forEach(time => {
+        // log time
         console.log(`\nAt ${time} ===========`);
 
         // ready queue
         solveReadyQueue(time, readyQueue, tempQueue, currentProcessList)
 
-        if (cpuRemainTime > 0) {
-            cpuBox[time] = currentProcess.name;
-        } else {
+        if (cpuRemainingTime > 0) cpuBox[time] = currentProcess.name;
+        else {
             // run algorithm
             switch (algo) {
                 case 'fcfs':
-                    [cpuRemainTime, currentProcess] = fcfs(time, currentProcess, ioRemainObject, readyQueue, cpuBox, cpuRemainTime, currentProcessList)
+                    [cpuRemainingTime, currentProcess] = fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
                     break;
             }
-
         }
-
-        // solve io
-        solveIoBox(time, ioBox, ioRemainObject, tempQueue, currentProcessList)
-
+        solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList)
         logData(cpuBox, ioBox, readyQueue, time);
-        if (cpuRemainTime > 0) cpuRemainTime--;
+
+        // decrease cpu counter
+        if (cpuRemainingTime > 0) cpuRemainingTime--;
     })
 }
 
-function fcfs(time, currentProcess, ioRemainObject, readyQueue, cpuBox, cpuRemainTime, currentProcessList) {
+function fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList) {
     // grant io for current process
-    if (currentProcess?.ios?.length > 0) grantIo(ioRemainObject, currentProcess);
+    if (currentProcess?.ios?.length > 0) grantIo(ioRemainingObj, currentProcess);
 
-    // grant new
-    let topProcess = readyQueue[time][0];
-    if (topProcess) {
+    // grant cpu for the top process of ready queue
+    if (readyQueue[time][0]) {
         const pName = readyQueue[time].shift();
         currentProcess = currentProcessList.getProcessByName(pName);
         cpuBox[time] = currentProcess.name;
-        cpuRemainTime = currentProcess.cpus.shift();
+        cpuRemainingTime = currentProcess.cpus.shift();
     }
-    return [cpuRemainTime, currentProcess];
+    return [cpuRemainingTime, currentProcess];
 }
 
-
-function grantIo(ioRemainObject, process) {
-    ioRemainObject[process.name] = process.ios.shift() - 1;
+function grantIo(ioRemainingObj, process) {
+    ioRemainingObj[process.name] = process.ios.shift() - 1;
 }
 
-function solveIoBox(time, ioBox, ioRemainObject, tempQueue, currentProcessList) {
-    for (let key in ioRemainObject) {
-        if (ioRemainObject[key] > -1) {
+function solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList) {
+    for (let key in ioRemainingObj) {
+        if (ioRemainingObj[key] > -1) {
+            // add process to io box
             ioBox[time].push(key);
-            if (ioRemainObject[key] == 0) {
+
+            // if done io => push the process to the end of ready queue
+            if (ioRemainingObj[key] == 0) {
                 let tempP = currentProcessList.getProcessByName(key);
                 if (tempP.cpus.length > 0) {
+                    // "tempQueue" will be added to the end of ready queue at the next loop 
                     tempQueue.push(key);
                 }
             }
-            ioRemainObject[key]--;
+
+            // decrease io counter
+            ioRemainingObj[key]--;
         }
     }
 }
 
 function solveReadyQueue(time, readyQueue, tempQueue, currentProcessList) {
     const arrivalProcess = currentProcessList.getProcessByArrival(time)[0];
-    // solve arrival process (READY QUEUE)
-    if (time == 0) readyQueue[time] = [arrivalProcess.name];
-    else {
-        readyQueue[time] = [...readyQueue[time - 1],];
-        if (arrivalProcess) {
-            readyQueue[time].push(arrivalProcess.name);
-        }
-        if (tempQueue.length > 0) {
-            readyQueue[time] = [...readyQueue[time], ...tempQueue];
-            tempQueue.splice(0, tempQueue.length);
-        }
+
+    // clone previous ready queue 
+    readyQueue[time] = [...readyQueue[time - 1] || [],];
+
+    // add arrival process at the end of ready queue
+    if (arrivalProcess) readyQueue[time].push(arrivalProcess.name);
+
+    if (tempQueue.length > 0) {
+        // add processes back from io at the end of ready queue
+        readyQueue[time] = [...readyQueue[time], ...tempQueue];
+
+        // clear tempQueue
+        tempQueue.splice(0, tempQueue.length);
     }
+}
+
+function initiateIoRemainingObj(pList) {
+    const result = {};
+    pList.list.forEach(p => {
+        result[p.name] = -1;
+    })
+    return result;
 }
 
 // SUPPORT FUNCTIONS
