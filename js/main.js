@@ -18,6 +18,7 @@ function runAlgorithm() {
     // counter
     let ioRemainingObj = initiateIoRemainingObj(currentProcessList);
     let cpuRemainingTime = -1;
+    let quantumCounter = -1;
 
 
     // loop timeline
@@ -27,8 +28,7 @@ function runAlgorithm() {
 
         // ready queue
         solveReadyQueue(time, readyQueue, tempQueue, currentProcessList)
-
-        if (cpuRemainingTime > 0) cpuBox[time] = currentProcess.name;
+        if (cpuRemainingTime > 0 && (algo != 'rr' || quantumCounter > 0)) cpuBox[time] = currentProcess.name;
         else {
             // run algorithm
             switch (algo) {
@@ -38,13 +38,17 @@ function runAlgorithm() {
                 case 'sjf':
                     [cpuRemainingTime, currentProcess] = sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
                     break;
+                case 'rr':
+                    [cpuRemainingTime, currentProcess, quantumCounter] = roundRobin(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList, quantumCounter)
+                    break;
             }
         }
-        solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList)
+        solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList, quantumCounter)
         //logDataAtTimePoint(cpuBox, ioBox, readyQueue, time);
 
         // decrease cpu counter
         if (cpuRemainingTime > 0) cpuRemainingTime--;
+        if (quantumCounter > 0) quantumCounter--;
     })
     lastCpuTime = getLastCpuTime(cpuBox, maxTime);
     cpuBox.splice(lastCpuTime + 1, maxTime);
@@ -96,6 +100,32 @@ function sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemain
     return [cpuRemainingTime, currentProcess];
 }
 
+function roundRobin(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList, quantumCounter) {
+    // grant io for current process 
+    // when time = 0 => currentProcess = null => not grant IO 
+    if ((algo != 'rr' || cpuRemainingTime == 0) && currentProcess?.ios?.length > 0) grantIo(ioRemainingObj, currentProcess);
+
+    // grant cpu for the top process of ready queue
+    const grantCpuForTopProcess = () => {
+        if (readyQueue[time][0]) {
+            const pName = readyQueue[time].shift();
+            currentProcess = currentProcessList.getProcessByName(pName);
+            cpuBox[time] = currentProcess.name;
+            cpuRemainingTime = currentProcess.cpus.shift();
+            quantumCounter = quantum;
+        }
+    }
+
+    if (cpuRemainingTime > 0) {
+        const rest = cpuRemainingTime;
+        currentProcess.cpus.unshift(rest);
+        readyQueue[time].push(currentProcess.name);
+        grantCpuForTopProcess();
+    } else grantCpuForTopProcess();
+
+    return [cpuRemainingTime, currentProcess, quantumCounter];
+}
+
 function getMinCpuProcessIndex(readyQueueAtTime, currentProcessList) {
     let minCpuVal = 1000;
     let minCpuProcessIndex = 0;
@@ -115,7 +145,8 @@ function grantIo(ioRemainingObj, process) {
     ioRemainingObj[process.name] = process.ios.shift() - 1;
 }
 
-function solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList) {
+function solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList, quantumCounter) {
+    //if (algo != 'rr' || quantumCounter == 0) {
     for (let key in ioRemainingObj) {
         if (ioRemainingObj[key] > -1) {
             // add process to io box
@@ -134,6 +165,7 @@ function solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList) 
             ioRemainingObj[key]--;
         }
     }
+    //}
 }
 
 function solveReadyQueue(time, readyQueue, tempQueue, currentProcessList) {
