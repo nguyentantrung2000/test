@@ -1,6 +1,6 @@
 // ALGORITHM
 function runAlgorithm() {
-    const maxTime = 100;
+    const maxTime = 20;
     const currentProcessList = processList.clone();
     let currentProcess = null;
 
@@ -23,7 +23,7 @@ function runAlgorithm() {
     // loop timeline
     timeline.forEach(time => {
         // log time
-        //console.log(`\nAt ${time} ===========`);
+        //console.log(`\n${time} ===========`);
 
         // ready queue
         solveReadyQueue(time, readyQueue, tempQueue, currentProcessList)
@@ -34,6 +34,9 @@ function runAlgorithm() {
             switch (algo) {
                 case 'fcfs':
                     [cpuRemainingTime, currentProcess] = fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
+                    break;
+                case 'sjf':
+                    [cpuRemainingTime, currentProcess] = sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
                     break;
             }
         }
@@ -58,9 +61,9 @@ function runAlgorithm() {
     resultProcessList.calculateAverageTimes();
 
     // LOG DATA
-    console.log('\n--');
-    logBoxData(cpuBox, ioBox, readyQueue);
-    console.log('PROCESS LIST\t', resultProcessList);
+    //console.log('\n--');
+    //logBoxData(cpuBox, ioBox, readyQueue);
+    //console.log('PROCESS LIST\t', resultProcessList);
     renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue);
 
 }
@@ -77,6 +80,34 @@ function fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemai
         cpuRemainingTime = currentProcess.cpus.shift();
     }
     return [cpuRemainingTime, currentProcess];
+}
+
+function sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList) {
+    // grant io for current process
+    if (currentProcess?.ios?.length > 0) grantIo(ioRemainingObj, currentProcess);
+
+    if (readyQueue[time][0]) {
+        // find min cpu process name
+        const [pName] = readyQueue[time].splice(getMinCpuProcessIndex(readyQueue[time], currentProcessList));
+        currentProcess = currentProcessList.getProcessByName(pName);
+        cpuBox[time] = currentProcess.name;
+        cpuRemainingTime = currentProcess.cpus.shift();
+    }
+    return [cpuRemainingTime, currentProcess];
+}
+
+function getMinCpuProcessIndex(readyQueueAtTime, currentProcessList) {
+    let minCpuVal = 1000;
+    let minCpuProcessIndex = 0;
+    readyQueueAtTime.forEach((pName, index) => {
+        let process = currentProcessList.getProcessByName(pName);
+        if (process.cpus[0] < minCpuVal) {
+            minCpuVal = process.cpus[0];
+            minCpuProcessIndex = index;
+        }
+    })
+    return minCpuProcessIndex;
+
 }
 
 // ALGORITHM FUNCTIONS

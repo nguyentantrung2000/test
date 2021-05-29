@@ -57,10 +57,8 @@ function ProcessList(list) {
     this.getError = function () {
         let err = null;
         for (let p of this.list) {
-            console.log('process', p);
             const lastNonZeroCpuIndex = this.getLastNonZeroValIndex(p.cpus);
             const lastNonZeroIoIndex = this.getLastNonZeroValIndex(p.ios);
-            console.log(lastNonZeroCpuIndex, lastNonZeroIoIndex);
 
             // 3. cpus[0], cpus[1], ios[0] > 0
             if (lastNonZeroCpuIndex < 1) {
