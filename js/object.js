@@ -10,7 +10,7 @@ function ProcessList(list) {
         let process1 = this.list[0];
         let cpus = process1.cpus.map(item => 0);
         let ios = cpus.slice(0, cpus.length - 1);
-        let process = new Process(`p${this.list.length + 1}`, this.list.length, cpus, ios);
+        let process = new Process(`p${this.list.length + 1}`, this.getLastArrivalTime() + 1, cpus, ios);
         this.add(process);
     }
 
@@ -37,6 +37,68 @@ function ProcessList(list) {
 
     this.getProcessByName = function (name) {
         return this.list.filter(item => item.name == name)[0];
+    }
+
+    this.calculateAverageTimes = function () {
+        let totalProcess = this.list.length;
+        let totalResponseTime = 0;
+        let totalWaitingTime = 0;
+        let totalTurnAroundTime = 0;
+        this.list.forEach(p => {
+            totalResponseTime += p.responseTime;
+            totalWaitingTime += p.waitingTime;
+            totalTurnAroundTime += p.turnAroundTime;
+        })
+        this.avgResponseTime = totalResponseTime / totalProcess;
+        this.avgWaitingTime = totalWaitingTime / totalProcess;
+        this.avgTurnAroundTime = totalTurnAroundTime / totalProcess;
+    }
+
+    this.getError = function () {
+        let err = null;
+        for (let p of this.list) {
+            console.log('process', p);
+            const lastNonZeroCpuIndex = this.getLastNonZeroValIndex(p.cpus);
+            const lastNonZeroIoIndex = this.getLastNonZeroValIndex(p.ios);
+            console.log(lastNonZeroCpuIndex, lastNonZeroIoIndex);
+
+            // 3. cpus[0], cpus[1], ios[0] > 0
+            if (lastNonZeroCpuIndex < 1) {
+                err = `Process "${p.name}" must have at least "cpu - io - cpu" value`;
+                break;
+            }
+
+            // 1. end cpu
+            if (lastNonZeroCpuIndex <= lastNonZeroIoIndex) {
+                err = `Process "${p.name}" must end with cpu`;
+                break;
+            }
+
+            // 2. no 0 between
+            if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1) {
+                err = `Process "${p.name}" must not have empty value in the middle`;
+                break;
+            }
+
+
+        }
+        return err;
+    }
+
+    this.getLastNonZeroValIndex = function (arr) {
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (arr[i] != 0) return i;
+        }
+        return -1;
+    }
+
+    this.getLastArrivalTime = function () {
+        let max = 0;
+        this.list.forEach(p => {
+            if (p.arrival > max)
+                max = p.arrival;
+        })
+        return max;
     }
 }
 

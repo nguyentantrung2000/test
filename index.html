@@ -18,40 +18,41 @@
 
         <!-- MAIN CONTENT -->
         <div id="content-wrapper" class="container">
-            <form id="main-form">
+            <div class="box">
+                <form id="main-form">
 
-                <!-- CONTROL BAR -->
-                <div class="control-bar">
-                    <button type="button" id="add-process-btn">Add new process</button>
-                    <button type="button" id="add-request-btn">Add request</button>
-                    <button type="button" id="reset-btn">Reset</button>
-                    <button type="run-btn" id="run-btn">Run</button>
-                </div>
-
-                <!-- OPTION BAR -->
-                <div class="option-bar">
-                    <!-- ALGORITHM -->
-                    <div>
-                        <span>Algorithm</span>
-                        <select id="algorithm-select">
-                            <option selected value="fcfs">FCFS</option>
-                            <option value="stf">SJF</option>
-                            <option value="srtf">SRTF</option>
-                            <option value="rr">Round Robin</option>
-                        </select>
+                    <!-- CONTROL BAR -->
+                    <div class="control-bar">
+                        <button type="button" id="add-process-btn">Add new process</button>
+                        <button type="button" id="add-request-btn">Add request</button>
+                        <button type="button" id="reset-btn">Reset</button>
+                        <button type="run-btn" id="run-btn">Run</button>
                     </div>
 
-                    <!-- OPTIONAL -->
-                    <div id="quantum-container">
-                        <span>Quantum</span>
-                        <input id="quantum-input" type="number" min="1" value="2">
-                    </div>
-                </div>
+                    <!-- OPTION BAR -->
+                    <div class="option-bar">
+                        <!-- ALGORITHM -->
+                        <div>
+                            <span>Algorithm</span>
+                            <select id="algorithm-select">
+                                <option selected value="fcfs">FCFS</option>
+                                <option value="stf">SJF</option>
+                                <option value="srtf">SRTF</option>
+                                <option value="rr">Round Robin</option>
+                            </select>
+                        </div>
 
-                <!-- TABLE -->
-                <div id="table-area">
-                    <!-- THIS TABLE WILL BE RENDERED BY JAVASCRIPT-->
-                    <!-- 
+                        <!-- OPTIONAL -->
+                        <div id="quantum-container">
+                            <span>Quantum</span>
+                            <input id="quantum-input" type="number" min="1" value="2">
+                        </div>
+                    </div>
+
+                    <!-- TABLE -->
+                    <div id="form-table-area">
+                        <!-- THIS TABLE WILL BE RENDERED BY JAVASCRIPT-->
+                        <!-- 
                     <table class="form-table">
                         <thead>
                             <tr>
@@ -76,8 +77,88 @@
                     </table>
                      -->
 
+                    </div>
+                </form>
+
+            </div>
+            <div id="result-box" class="box">
+                <div id="result-table-area">
+                    <!-- THIS TABLE WILL BE RENDERED BY JAVASCRIPT-->
+                    <!-- 
+                    <table id="result-table" class="table">
+                        <thead>
+                            <tr>
+                                <th class="level-thead"></th>
+                                <th class="process-thead">Process</th>
+                                <th>0</th>
+                                <th>1</th>
+                                <th>2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="level-row">
+                                <th class="level-name-cell" scope="row" rowspan="3">CPU</th>
+                                <td>p1</td>
+                                <td>.</td>
+                                <td>.</td>
+                                <td>.</td>
+                            </tr>
+                            <tr>
+                                <td>p2</td>
+                                <td>.</td>
+                                <td>.</td>
+                                <td>.</td>
+                            </tr>
+                            <tr>
+                                <td>p3</td>
+                                <td>.</td>
+                                <td>.</td>
+                                <td>.</td>
+                            </tr>
+                    <tr class="level-row">
+                        <th class="level-name-cell" scope="row" rowspan="3">IO</th>
+                        <td>p1</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+                    <tr>
+                        <td>p2</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+                    <tr>
+                        <td>p3</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+
+                    <tr class="level-row">
+                        <th class="level-name-cell" scope="row" rowspan="3">Ready queue</th>
+                        <td>p1</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+                    <tr>
+                        <td>p2</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+                    <tr>
+                        <td>p3</td>
+                        <td>.</td>
+                        <td>.</td>
+                        <td>.</td>
+                    </tr>
+                    </tbody>
+                    </table>
+                    -->
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     <script src="./js/object.js"></script>

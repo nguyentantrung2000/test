@@ -1,5 +1,6 @@
 // ALGORITHM
 function runAlgorithm() {
+    const maxTime = 100;
     const currentProcessList = processList.clone();
     let currentProcess = null;
 
@@ -7,7 +8,7 @@ function runAlgorithm() {
     const tempQueue = [];
 
     // array of time
-    const timeline = getTimeline(50);
+    const timeline = getTimeline(maxTime);
 
     // initiate boxes
     const cpuBox = timeline.map(x => null);
@@ -22,7 +23,7 @@ function runAlgorithm() {
     // loop timeline
     timeline.forEach(time => {
         // log time
-        console.log(`\nAt ${time} ===========`);
+        //console.log(`\nAt ${time} ===========`);
 
         // ready queue
         solveReadyQueue(time, readyQueue, tempQueue, currentProcessList)
@@ -37,11 +38,31 @@ function runAlgorithm() {
             }
         }
         solveIoBox(time, ioBox, ioRemainingObj, tempQueue, currentProcessList)
-        logData(cpuBox, ioBox, readyQueue, time);
+        //logDataAtTimePoint(cpuBox, ioBox, readyQueue, time);
 
         // decrease cpu counter
         if (cpuRemainingTime > 0) cpuRemainingTime--;
     })
+    lastCpuTime = getLastCpuTime(cpuBox, maxTime);
+    cpuBox.splice(lastCpuTime + 1, maxTime);
+    ioBox.splice(lastCpuTime + 1, maxTime);
+    readyQueue.splice(lastCpuTime + 1, maxTime);
+
+    // calculation
+    const resultProcessList = processList.clone();
+    resultProcessList.list.forEach(process => {
+        process.waitingTime = getProcessWaitingTime(cpuBox, process);
+        process.responseTime = getProcessResponseTime(cpuBox, process);
+        process.turnAroundTime = getProcessTurnAroundTime(cpuBox, process);
+    })
+    resultProcessList.calculateAverageTimes();
+
+    // LOG DATA
+    console.log('\n--');
+    logBoxData(cpuBox, ioBox, readyQueue);
+    console.log('PROCESS LIST\t', resultProcessList);
+    renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue);
+
 }
 
 function fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList) {
@@ -58,6 +79,7 @@ function fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemai
     return [cpuRemainingTime, currentProcess];
 }
 
+// ALGORITHM FUNCTIONS
 function grantIo(ioRemainingObj, process) {
     ioRemainingObj[process.name] = process.ios.shift() - 1;
 }
@@ -118,11 +140,90 @@ function getTimeline(max) {
     return timeline;
 }
 
-function logData(cpuBox, ioBox, readyQueue, time) {
+function getLastCpuTime(cpuBox) {
+    let counter = 0;
+    for (let i = cpuBox.length - 1; i >= 0; i--) {
+        if (cpuBox[i] != null) {
+            counter = i;
+            break;
+        }
+    }
+    return counter;
+}
+
+//  RESULT CALCULATION
+function getProcessResponseTime(cpuBox, process) {
+    return getFirstGrantedCpuTimeOfProcess(cpuBox, process.name) - process.arrival;
+}
+
+function getProcessWaitingTime(cpuBox, process) {
+    let timePoints = [];
+    let continuos = 0;
+    const firstGrantedProcessNames = [];
+    for (let index in cpuBox) {
+        index = Number.parseInt(index)
+        if (index > 0 && cpuBox[index - 1] == process.name) {
+            if (cpuBox[index] == process.name) {
+                if (index == cpuBox.length - 1)
+                    timePoints.push(index - 1 - continuos);
+                continuos++;
+            } else {
+                let calculationTime = index;
+                if (firstGrantedProcessNames.includes(process.name)) {
+                    calculationTime -= continuos + 1;
+                } else firstGrantedProcessNames.push(process.name);
+                timePoints.push(calculationTime);
+                continuos = 0;
+            }
+        }
+
+    }
+    let result = 0;
+    timePoints.forEach((val, index) => {
+        if (index > 0 && index % 2 == 1) {
+            result += val - timePoints[index - 1];
+        }
+    })
+
+    const waitingTime = result + getProcessResponseTime(cpuBox, process);
+    return waitingTime;
+}
+
+function getProcessTurnAroundTime(cpuBox, process) {
+    return getEndCpuTimeOfProcess(cpuBox, process.name) - getFirstGrantedCpuTimeOfProcess(cpuBox, process.name);
+}
+
+function getFirstGrantedCpuTimeOfProcess(cpuBox, pName) {
+    let index = -1;
+    for (let key in cpuBox) {
+        if (cpuBox[key] == pName) {
+            index = key
+            break;
+        }
+    }
+    return index;
+}
+
+function getEndCpuTimeOfProcess(cpuBox, pName) {
+    let index = -1;
+    for (let key = cpuBox.length - 1; key >= 0; key--) {
+        if (cpuBox[key] == pName) {
+            index = key
+            break;
+        }
+    }
+    return index;
+}
+
+// LOG
+function logDataAtTimePoint(cpuBox, ioBox, readyQueue, time) {
     console.log('CPU\t\t', cpuBox[time]);
     console.log('IO\t\t', [...ioBox[time]]);
     console.log('QUEUE\t', [...readyQueue[time]]);
-    //console.log('CPU BOX\t\t', cpuBox);
-    //console.log('IO BOX\t\t', ioBox);
-    //console.log('QUEUE BOX\t\t', readyQueue);
+}
+
+function logBoxData(cpuBox, ioBox, readyQueue) {
+    console.log('CPU BOX\t\t\t', cpuBox);
+    console.log('IO BOX\t\t\t', ioBox);
+    console.log('QUEUE BOX\t\t', readyQueue);
 }

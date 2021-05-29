@@ -4,13 +4,19 @@ function Data() {
         new Process('p1', 0, [3, 4], [4]),
         new Process('p2', 1, [2, 2], [2]),
         new Process('p3', 2, [1, 3], [1]),
+
+        //new Process('p4', 3, [3, 4], [4]),
+        //new Process('p5', 4, [2, 2], [2]),
+        //new Process('p6', 5, [1, 3], [1]),
+
+        //new Process('p7', 6, [3, 4], [4]),
+        //new Process('p8', 7, [2, 2], [2]),
+        //new Process('p9', 8, [1, 3], [1]),
+
     ]
+
+    this.colors = ['blue', 'green', 'red', 'orange',];
 }
-//let processData = [
-//new Process('p1', 0, [3, 4], [4]),
-//new Process('p2', 1, [2, 2], [2]),
-//new Process('p3', 2, [1, 3], [1]),
-//]
 
 // initiate values
 var processList = new ProcessList(new Data().processData);
@@ -19,7 +25,7 @@ var quantum = 2;
 
 main();
 function main() {
-    renderTable();
+    renderFormTable();
     setupControlEvents();
     setupForm();
 }
@@ -41,20 +47,18 @@ function setupControlEvents() {
     // add process btn click
     addProcessBtn.addEventListener('click', () => {
         processList.addNewProcess();
-        renderTable(processList);
+        renderFormTable(processList);
     })
 
     // add cpu btn click
     requestBtn.addEventListener('click', () => {
         processList.addNewRequest();
-        renderTable(processList);
+        renderFormTable(processList);
     })
     resetBtn.addEventListener('click', () => {
-        let r = confirm('Do you want to reset?');
-        if (r) {
-            processList = new ProcessList(new Data().processData);
-            renderTable();
-        }
+        document.getElementById('result-box').style.display = 'none';
+        processList = new ProcessList(new Data().processData);
+        renderFormTable();
     })
 }
 
@@ -64,7 +68,9 @@ function setupForm() {
     let mainForm = document.getElementById('main-form');
     mainForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        runAlgorithm(processList);
+        const err = processList.getError();
+        if (!err) runAlgorithm(processList);
+        else alert(err);
     })
 
     algorithmSelect.addEventListener('change', (e) => {
@@ -94,7 +100,7 @@ function updateProcessList() {
     let step = arrivalIndexArr[1] - arrivalIndexArr[0];
     let processes = arrivalIndexArr.map((val, index) => {
         let data = entries.slice(val, val + step);
-        let arrival = data[0][1];
+        let arrival = Number.parseInt(data[0][1]);
         let cpus = [];
         let ios = [];
         data.slice(1).forEach(item => {
@@ -118,45 +124,49 @@ function renderOption() {
     quantumInput.value = quantum;
 }
 
-function renderTable() {
-    let tableArea = document.getElementById('table-area');
+function renderFormTable() {
+    let tableArea = document.getElementById('form-table-area');
     tableArea.innerHTML = getTableHtml();
     setupTableEvents();
 
 }
 function getTableHtml() {
-    let tableHtml = `<table table class="form-table" > ${getTHeadHtml()} ${getTBodyHtml()}</table > `;
+    let tableHtml = `<table table class="form-table" > ${getFormTableTHeadHtml()} ${getFormTableTBodyHtml()}</table > `;
     return tableHtml;
 }
-function getTHeadHtml() {
+function getFormTableTHeadHtml() {
     let htmlStr = '';
     let process1 = processList.list[0];
     for (let i = 0; i < process1.ios.length; i++) {
-        htmlStr += `<th th > IO</th > <th>CPU</th>`;
+        htmlStr += `<th>IO</th><th>CPU</th>`;
     }
 
-    let tHead = `<thead thead >
+    let tHead = `
+        <thead thead >
             <tr>
                 <th scope="col">#</th>
                 <th>Process</th>
                 <th>Arrival</th>
                 <th>CPU</th>
-                            ${htmlStr}
+                ${htmlStr}
             </tr>
-                    </thead > `;
+        </thead>`;
     return tHead;
 
 }
-function getTBodyHtml() {
+function getFormTableTBodyHtml() {
     let rows = '';
     processList.list.forEach((item, index) => {
-        let htmlStr = ` <th th scope = "row" > ${index + 1}</th >
-            <td class="process-name">${item.name}</td> `;
+        let htmlStr = ` 
+            <th scope="row"> 
+                ${index + 1}
+            </th>
+            <td class="process-name">${item.name}</td>`;
         htmlStr += getNumberInputHtml(`arrival - ${index} `, item.arrival, 0) + getCpuAndIoColumn(item, index);
-        rows += `<tr tr > ${htmlStr}</tr > `;
+        rows += `<tr> ${htmlStr}</tr> `;
     })
 
-    let tBody = ` <tbody tbody > ${rows}</tbody > `;
+    let tBody = ` <tbody> ${rows}</tbody>`;
     return tBody;
 }
 
@@ -175,4 +185,170 @@ function getCpuAndIoColumn(item, index) {
 
 function getNumberInputHtml(name, value, min = 1) {
     return `<td td > <input class="table-input" name="${name}" value="${value}" type="number" min="${min}" /></td > `;
+}
+
+// GENERATE RESULT TABLE
+function renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue) {
+    let htmlStr = `
+        <table id="result-table" class="table">
+            ${getResultTableTHeadHtml(cpuBox.length)}
+            ${getResultTableTBodyHtml(resultProcessList, cpuBox, ioBox, readyQueue)}
+        </table>`;
+
+    // display
+    document.getElementById('result-box').style.display = 'block';
+    const resultTableArea = document.getElementById('result-table-area');
+    resultTableArea.innerHTML = htmlStr;
+}
+
+function getResultTableTHeadHtml(length) {
+    let thHtml = '';
+    for (let i = 0; i < length; i++) thHtml += `<th>${i}</th>`;
+    return `
+        <thead>
+            <tr>
+                <th class="level-thead"></th>
+                <th class="process-thead">Process</th>
+                ${thHtml}
+            </tr>
+        </thead> `;
+
+}
+
+function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue) {
+    const data = new Data();
+    const pColor = {};
+
+    // assign background color for each process
+    pList.list.forEach((p, index) => {
+        const colorIndex = (index < data.colors.length) ? index : index % data.colors.length;
+        pColor[p.name] = data.colors[colorIndex]
+    })
+
+    let cpuLevelHtml = getCpuLevelHtml(pList, cpuBox, pColor);
+    let ioLevelHtml = getIoLevelHtml(pList, ioBox, pColor);
+    let readyQueueHtml = getReadyQueueHtml(pList, readyQueue);
+    const tBodyHtml = `${cpuLevelHtml}${ioLevelHtml}${readyQueueHtml}`
+    return tBodyHtml;
+}
+
+function getCpuLevelHtml(pList, cpuBox, pColor) {
+    let cpuTrArr = pList.list.map((p, index) => {
+        let trHtml = '';
+        let tdArr = cpuBox.map((pName, subIndex) => {
+            return drawTableCell(pName == p.name, cpuBox[subIndex - 1] != pName, p, pColor, pName == null, cpuBox[subIndex - 1], cpuBox[subIndex + 1], subIndex);
+        })
+        let tdHtml = convertArrayToString(tdArr);
+
+        if (index == 0) {
+            // first row
+            trHtml = `
+                <tr class="level-row">
+                    <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">CPU</th>
+                    <td>${p.name}</td>
+                    ${tdHtml}
+                </tr> `;
+        } else {
+            trHtml = `
+                <tr>
+                    <td>${p.name}</td>
+                    ${tdHtml}
+                </tr> `;
+        }
+        return trHtml;
+    })
+    const html = addSpacing(convertArrayToString(cpuTrArr));
+    return html;
+}
+
+function getIoLevelHtml(pList, ioBox, pColor) {
+    let trArr = pList.list.map((p, index) => {
+        let trHtml = '';
+        let tdArr = ioBox.map((pNames, subIndex) => {
+            const previousIo = ioBox[subIndex - 1] || [];
+            return drawTableCell(pNames.includes(p.name), !previousIo.includes(p.name), p, pColor);
+        })
+        let tdHtml = convertArrayToString(tdArr);
+        if (index == 0) {
+            trHtml = `
+                <tr class="level-row">
+                    <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">IO</th>
+                    <td>${p.name}</td>
+                    ${tdHtml}
+                </tr> `;
+        } else {
+            trHtml = `
+                <tr>
+                    <td>${p.name}</td>
+                    ${tdHtml}
+                </tr> `;
+        }
+        return trHtml;
+    })
+    const html = addSpacing(convertArrayToString(trArr));
+    return html;
+}
+
+function drawTableCell(isCurrent, showLabel, rowP, pColor, isEmpty = false, prevPname = null, nextPname = null, time = null) {
+    let content = '';
+    let htmlClass = (isEmpty) ? getEmptyLevelClass(prevPname, nextPname) : '';
+
+    if (isCurrent) {
+        htmlClass = `bg-${pColor[rowP.name]}`;
+        if (showLabel) {
+            htmlClass += ' process-label ';
+            content = `<span>${rowP.name}</span>`;
+        }
+    } else {
+        if (time == rowP.arrival) htmlClass += `border-dashes-left-${pColor[rowP.name]}`;
+    }
+    return `<td class="${htmlClass}">${content}</td> `;
+}
+
+function getEmptyLevelClass(prev, next) {
+    console.log('empty', prev, next);
+
+    let pos = '';
+    if (!prev && !next) return '';
+    else {
+        if (prev && next) pos = 'vertical';
+        else pos = (!prev) ? 'right' : 'left';
+    }
+    return `${pos}-dashes-border`;
+}
+
+function getReadyQueueHtml(pList, readyQueue) {
+    // create 3 row
+    let trHtml = '';
+    let tdArr = readyQueue.map((subQueue, subIndex) => {
+        let queueTdHtml = '';
+        for (let i = 0; i < pList.list.length; i++) {
+            const value = subQueue[i] || '';
+            queueTdHtml += `<tr><td>${value}</td></tr>`;
+        }
+        let queueTrHtml = `<table>${queueTdHtml}</table>`;
+
+        return `<td>${queueTrHtml}</td> `;
+    })
+    let tdHtml = convertArrayToString(tdArr);
+    trHtml = `
+            <tr id="ready-queue" class="level-row">
+                <th  class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
+                <td></td>
+                ${tdHtml}
+            </tr> `;
+    return trHtml;
+}
+
+// OTHER FUNCTIONS
+function addSpacing(value, n = 1) {
+    const html = `${value}${'<tr ><td colspan="1000"><br/></td></tr><tr class="tr-spacing"><td colspan="1000"><br/></td></tr>'.repeat(n)}`
+    return html;
+}
+
+function convertArrayToString(array) {
+    let str = array.reduce((prev, current) => {
+        return prev + current;
+    }, '');
+    return str;
 }

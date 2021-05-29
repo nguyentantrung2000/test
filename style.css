@@ -4,10 +4,81 @@
     --accent-color: #F5F1DE;
     --white: #ffffff;
     --black: #000000;
+    /* process background colors */
+    --bg-orange: #ff7100;
+    --bg-red: #FF0000;
+    --bg-blue: #00B0F0;
+    --bg-green: #92D050;
+    /* border */
+    --empty-border: 2px dashed var(--black);
 }
 
 body {
     margin: 0px;
+}
+
+
+/* background color */
+
+.bg-red {
+    background-color: var(--bg-red);
+}
+
+.bg-orange {
+    background-color: var(--bg-orange);
+}
+
+.bg-green {
+    background-color: var(--bg-green);
+}
+
+.bg-blue {
+    background-color: var(--bg-blue);
+}
+
+
+/* text color */
+
+.text-white {
+    color: var(--white);
+}
+
+
+/* border bottom */
+
+.border-dashes-bottom-blue {
+    border-bottom: 2px dashed var(--bg-blue);
+}
+
+.border-dashes-bottom-red {
+    border-bottom: 2px dashed var(--bg-red);
+}
+
+.border-dashes-bottom-green {
+    border-bottom: 2px dashed var(--bg-green);
+}
+
+.border-dashes-bottom-orange {
+    border-bottom: 2px dashed var(--bg-orange);
+}
+
+
+/* border left */
+
+.border-dashes-left-blue {
+    border-left: 2px dashed var(--bg-blue);
+}
+
+.border-dashes-left-red {
+    border-left: 2px dashed var(--bg-red);
+}
+
+.border-dashes-left-green {
+    border-left: 2px dashed var(--bg-green);
+}
+
+.border-dashes-left-orange {
+    border-left: 2px dashed var(--bg-orange);
 }
 
 
@@ -30,7 +101,7 @@ button {
 button#reset-btn {
     background-color: var(--white);
     color: var(--black);
-    border: 1px solid black;
+    border: 1px solid var(--black);
 }
 
 button:hover,
@@ -59,17 +130,18 @@ button#reset-btn:hover {
     flex-direction: column;
 }
 
-#content-wrapper {
-    margin: 50px 200px;
+.box {
+    overflow-x: auto;
     background-color: var(--accent-color);
+    border: 1px solid var(--black);
+    margin: 50px 200px;
     padding: 50px;
-    border: 1px solid var(--black)
 }
 
 @media only screen and (max-width: 1300px) {
-    #content-wrapper {
-        margin: 50px 50px;
+    .box {
         background-color: var(--accent-color);
+        margin: 50px 50px;
         padding: 50px 50px;
     }
 }
@@ -79,12 +151,50 @@ button#reset-btn:hover {
 }
 
 
-/* table */
+/* result table */
+
+div#result-box {
+    display: none;
+}
+
+table#result-table {
+    border-spacing: 0px;
+    width: 100%;
+}
+
+table#result-table .level-name-cell {
+    text-align: left;
+}
+
+table#result-table td {
+    height: 30px;
+}
+
+table#result-table thead th {
+    text-align: left;
+}
+
+table#result-table .process-label {
+    color: var(--white);
+}
+
+table#result-table tbody td:nth-child(odd) {
+    /*background-color: dodgerblue;*/
+}
+
+table#result-table th.level-thead,
+table#result-table th.process-thead {
+    width: 150px;
+}
+
+table#result-table td {}
+
+
+/* data table */
 
 form#main-form {
     display: flex;
     flex-direction: column;
-    overflow-x: auto;
 }
 
 .form-table {
@@ -137,7 +247,7 @@ th {
     .control-bar button {
         min-width: 160px;
     }
-    #content-wrapper {
+    .box {
         padding: 10px;
         margin: 0px;
     }
@@ -162,4 +272,30 @@ input#quantum-input {
 
 #quantum-container {
     display: none;
+}
+
+#ready-queue tr {
+    height: 30px;
+}
+
+.tr-spacing td {
+    border-top: 1px solid var(--black);
+}
+
+.level-column-empty {
+    border-left: 1px dashed var(--black);
+    border-right: 1px dashed var(--black);
+}
+
+.left-dashes-border {
+    border-left: var(--empty-border);
+}
+
+.right-dashes-border {
+    border-right: var(--empty-border);
+}
+
+.vertical-dashes-border {
+    border-left: var(--empty-border);
+    border-right: var(--empty-border);
 }
