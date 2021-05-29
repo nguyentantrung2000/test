@@ -28,7 +28,9 @@ function runAlgorithm() {
 
         // ready queue
         solveReadyQueue(time, readyQueue, tempQueue, currentProcessList)
-        if (cpuRemainingTime > 0 && (algo != 'rr' || quantumCounter > 0)) cpuBox[time] = currentProcess.name;
+        if (cpuRemainingTime > 0 && checkSpecialConditionOfAlgorithm(quantumCounter, readyQueue[time], cpuRemainingTime, currentProcessList)) {
+            cpuBox[time] = currentProcess.name;
+        }
         else {
             // run algorithm
             switch (algo) {
@@ -37,6 +39,9 @@ function runAlgorithm() {
                     break;
                 case 'sjf':
                     [cpuRemainingTime, currentProcess] = sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
+                    break;
+                case 'srtf':
+                    [cpuRemainingTime, currentProcess] = srtf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList)
                     break;
                 case 'rr':
                     [cpuRemainingTime, currentProcess, quantumCounter] = roundRobin(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList, quantumCounter)
@@ -69,7 +74,13 @@ function runAlgorithm() {
     //logBoxData(cpuBox, ioBox, readyQueue);
     //console.log('PROCESS LIST\t', resultProcessList);
     renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue);
+}
 
+function checkSpecialConditionOfAlgorithm(quantumCounter, readyQueueAtTime, cpuRemainingTime, currentProcessList) {
+    let roundRobin = (algo != 'rr' || quantumCounter > 0);
+    let minCpuProcess = getMinCpuProcessInReadyQueue(readyQueueAtTime, currentProcessList);
+    let srtf = (algo != 'srtf' || cpuRemainingTime <= minCpuProcess?.cpus[0]);
+    return (roundRobin && srtf);
 }
 
 function fcfs(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList) {
@@ -92,10 +103,36 @@ function sjf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemain
 
     if (readyQueue[time][0]) {
         // find min cpu process name
-        const [pName] = readyQueue[time].splice(getMinCpuProcessIndex(readyQueue[time], currentProcessList));
+        const [pName] = readyQueue[time].splice(getMinCpuProcessIndexInReadyQueue(readyQueue[time], currentProcessList), 1);
         currentProcess = currentProcessList.getProcessByName(pName);
         cpuBox[time] = currentProcess.name;
         cpuRemainingTime = currentProcess.cpus.shift();
+    }
+    return [cpuRemainingTime, currentProcess];
+}
+
+function srtf(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cpuRemainingTime, currentProcessList) {
+    // grant io for current process
+    if (cpuRemainingTime == 0 && currentProcess?.ios?.length > 0) grantIo(ioRemainingObj, currentProcess);
+
+    const grantCpu = () => {
+        if (readyQueue[time][0]) {
+            // find min cpu process name
+            const [pName] = readyQueue[time].splice(getMinCpuProcessIndexInReadyQueue(readyQueue[time], currentProcessList), 1);
+            currentProcess = currentProcessList.getProcessByName(pName);
+            cpuBox[time] = currentProcess.name;
+            cpuRemainingTime = currentProcess.cpus.shift();
+        }
+    }
+
+    if (cpuRemainingTime > 0) {
+        const rest = cpuRemainingTime;
+        currentProcess.cpus.unshift(rest);
+        readyQueue[time].push(currentProcess.name);
+        grantCpu();
+    } else {
+        grantCpu();
+
     }
     return [cpuRemainingTime, currentProcess];
 }
@@ -126,7 +163,20 @@ function roundRobin(time, currentProcess, ioRemainingObj, readyQueue, cpuBox, cp
     return [cpuRemainingTime, currentProcess, quantumCounter];
 }
 
-function getMinCpuProcessIndex(readyQueueAtTime, currentProcessList) {
+function getMinCpuProcessInReadyQueue(readyQueueAtTime, currentProcessList) {
+    let minProcess = null;
+    let minCpuVal = 1000;
+    readyQueueAtTime.forEach((pName, index) => {
+        let process = currentProcessList.getProcessByName(pName);
+        if (process.cpus[0] < minCpuVal) {
+            minProcess = process;
+            minCpuVal = process.cpus[0];
+        }
+    })
+    return minProcess;
+
+}
+function getMinCpuProcessIndexInReadyQueue(readyQueueAtTime, currentProcessList) {
     let minCpuVal = 1000;
     let minCpuProcessIndex = 0;
     readyQueueAtTime.forEach((pName, index) => {

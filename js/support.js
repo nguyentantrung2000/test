@@ -20,7 +20,7 @@ function Data() {
 
 // initiate values
 var processList = new ProcessList(new Data().processData);
-var algo = 'rr';
+var algo = 'srtf';
 var quantum = 2;
 
 main();
