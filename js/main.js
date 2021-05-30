@@ -1,6 +1,6 @@
 // ALGORITHM
 function runAlgorithm() {
-    const maxTime = 20;
+    const maxTime = 1000;
     const currentProcessList = processList.clone();
     let currentProcess = null;
 
@@ -73,7 +73,7 @@ function runAlgorithm() {
     //console.log('\n--');
     //logBoxData(cpuBox, ioBox, readyQueue);
     //console.log('PROCESS LIST\t', resultProcessList);
-    renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue);
+    renderResult(resultProcessList, cpuBox, ioBox, readyQueue);
 }
 
 function checkSpecialConditionOfAlgorithm(quantumCounter, readyQueueAtTime, cpuRemainingTime, currentProcessList) {

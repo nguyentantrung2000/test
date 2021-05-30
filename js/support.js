@@ -68,9 +68,17 @@ function setupForm() {
     let mainForm = document.getElementById('main-form');
     mainForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const err = processList.getError();
-        if (!err) runAlgorithm(processList);
-        else alert(err);
+        const errMessageArea = document.getElementById('error-message-area');
+        const errMessage = processList.getError();
+        if (!errMessage) {
+            runAlgorithm(processList);
+            // clear error message
+            errMessageArea.innerHTML = '';
+        }
+        else {
+            // show error message
+            errMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
+        }
     })
 
     algorithmSelect.addEventListener('change', (e) => {
@@ -113,7 +121,7 @@ function updateProcessList() {
 
 }
 
-// HTML GENERATES
+// GENERATE FORM TABLE
 function renderOption() {
     let algorithmSelect = document.getElementById('algorithm-select');
     let quantumContainer = document.getElementById('quantum-container');
@@ -130,10 +138,12 @@ function renderFormTable() {
     setupTableEvents();
 
 }
+
 function getTableHtml() {
     let tableHtml = `<table table class="form-table" > ${getFormTableTHeadHtml()} ${getFormTableTBodyHtml()}</table > `;
     return tableHtml;
 }
+
 function getFormTableTHeadHtml() {
     let htmlStr = '';
     let process1 = processList.list[0];
@@ -154,13 +164,12 @@ function getFormTableTHeadHtml() {
     return tHead;
 
 }
+
 function getFormTableTBodyHtml() {
     let rows = '';
     processList.list.forEach((item, index) => {
         let htmlStr = ` 
-            <th scope="row"> 
-                ${index + 1}
-            </th>
+            <th scope="row">${index + 1}</th>
             <td class="process-name">${item.name}</td>`;
         htmlStr += getNumberInputHtml(`arrival - ${index} `, item.arrival, 0) + getCpuAndIoColumn(item, index);
         rows += `<tr> ${htmlStr}</tr> `;
@@ -188,7 +197,13 @@ function getNumberInputHtml(name, value, min = 1) {
 }
 
 // GENERATE RESULT TABLE
-function renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue) {
+function renderResult(resultProcessList, cpuBox, ioBox, readyQueue) {
+    // algorithm name
+    let algorithmHeading = document.getElementById('algorithm-heading');
+    let algorithmName = (algo == 'rr') ? `${algo.toUpperCase()} Algorithm (q=${quantum})` : `${algo.toUpperCase()} Algorithm`;
+    algorithmHeading.innerText = algorithmName;
+
+    // table
     let htmlStr = `
         <table id="result-table" class="table">
             ${getResultTableTHeadHtml(cpuBox.length)}
@@ -336,6 +351,10 @@ function getReadyQueueHtml(pList, readyQueue) {
                 ${tdHtml}
             </tr> `;
     return trHtml;
+}
+
+// GENERATE STATISTIC TABLE
+function renderStatisticTable(pList) {
 }
 
 // OTHER FUNCTIONS

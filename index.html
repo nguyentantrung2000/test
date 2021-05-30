@@ -20,6 +20,10 @@
         <div id="content-wrapper" class="container">
             <div class="box">
                 <form id="main-form">
+                    <!-- ERROR MESSAGE -->
+                    <p id="error-message-area">
+                    </p>
+
 
                     <!-- CONTROL BAR -->
                     <div class="control-bar">
@@ -78,10 +82,14 @@
                      -->
 
                     </div>
+
+
                 </form>
 
             </div>
             <div id="result-box" class="box">
+                <h2 id="algorithm-heading">FCFS Algorithm</h2>
+
                 <div id="result-table-area">
                     <!-- THIS TABLE WILL BE RENDERED BY JAVASCRIPT-->
                     <!-- 
@@ -157,6 +165,51 @@
                     </tbody>
                     </table>
                     -->
+                </div>
+
+                <div id="statistic-table-area">
+                    <table id="statistic-table">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>R</th>
+                                <th>W</th>
+                                <th>T</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>p1</td>
+                                <td>2</td>
+                                <td>2</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>p1</td>
+                                <td>2</td>
+                                <td>2</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>p1</td>
+                                <td>2</td>
+                                <td>2</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Average</th>
+                                <td>2</td>
+                                <td>2</td>
+                                <td>2</td>
+                            </tr>
+                            <!-- 
+                            <caption style="caption-side:bottom">Statistic</caption>
+                             -->
+                        </tfoot>
+                    </table>
+
                 </div>
             </div>
         </div>

@@ -60,19 +60,19 @@ function ProcessList(list) {
             const lastNonZeroCpuIndex = this.getLastNonZeroValIndex(p.cpus);
             const lastNonZeroIoIndex = this.getLastNonZeroValIndex(p.ios);
 
-            // 3. cpus[0], cpus[1], ios[0] > 0
+            // 1. cpus[0], cpus[1], ios[0] > 0
             if (lastNonZeroCpuIndex < 1) {
-                err = `Process "${p.name}" must have at least "cpu - io - cpu" value`;
+                err = `Process "${p.name}" values required`;
                 break;
             }
 
-            // 1. end cpu
+            // 2. end cpu
             if (lastNonZeroCpuIndex <= lastNonZeroIoIndex) {
                 err = `Process "${p.name}" must end with cpu`;
                 break;
             }
 
-            // 2. no 0 between
+            // 3. no 0 between
             if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1) {
                 err = `Process "${p.name}" must not have empty value in the middle`;
                 break;

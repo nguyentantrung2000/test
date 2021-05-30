@@ -5,10 +5,12 @@
     --white: #ffffff;
     --black: #000000;
     /* process background colors */
-    --bg-orange: #ff7100;
-    --bg-red: #FF0000;
-    --bg-blue: #00B0F0;
-    --bg-green: #92D050;
+    --danger: #dc3545;
+    --light-danger: #f8d7da;
+    --orange: #ff7100;
+    --red: #FF0000;
+    --blue: #00B0F0;
+    --green: #92D050;
     /* border */
     --empty-border: 2px dashed var(--black);
 }
@@ -21,19 +23,19 @@ body {
 /* background color */
 
 .bg-red {
-    background-color: var(--bg-red);
+    background-color: var(--red);
 }
 
 .bg-orange {
-    background-color: var(--bg-orange);
+    background-color: var(--orange);
 }
 
 .bg-green {
-    background-color: var(--bg-green);
+    background-color: var(--green);
 }
 
 .bg-blue {
-    background-color: var(--bg-blue);
+    background-color: var(--blue);
 }
 
 
@@ -47,38 +49,38 @@ body {
 /* border bottom */
 
 .border-dashes-bottom-blue {
-    border-bottom: 2px dashed var(--bg-blue);
+    border-bottom: 2px dashed var(--blue);
 }
 
 .border-dashes-bottom-red {
-    border-bottom: 2px dashed var(--bg-red);
+    border-bottom: 2px dashed var(--red);
 }
 
 .border-dashes-bottom-green {
-    border-bottom: 2px dashed var(--bg-green);
+    border-bottom: 2px dashed var(--green);
 }
 
 .border-dashes-bottom-orange {
-    border-bottom: 2px dashed var(--bg-orange);
+    border-bottom: 2px dashed var(--orange);
 }
 
 
 /* border left */
 
 .border-dashes-left-blue {
-    border-left: 2px dashed var(--bg-blue);
+    border-left: 2px dashed var(--blue);
 }
 
 .border-dashes-left-red {
-    border-left: 2px dashed var(--bg-red);
+    border-left: 2px dashed var(--red);
 }
 
 .border-dashes-left-green {
-    border-left: 2px dashed var(--bg-green);
+    border-left: 2px dashed var(--green);
 }
 
 .border-dashes-left-orange {
-    border-left: 2px dashed var(--bg-orange);
+    border-left: 2px dashed var(--orange);
 }
 
 
@@ -150,11 +152,15 @@ button#reset-btn:hover {
     flex-direction: row;
 }
 
+table {
+    border-collapse: collapse;
+}
+
 
 /* result table */
 
 div#result-box {
-    display: none;
+    display: block;
 }
 
 table#result-table {
@@ -298,4 +304,25 @@ input#quantum-input {
 .vertical-dashes-border {
     border-left: var(--empty-border);
     border-right: var(--empty-border);
+}
+
+
+/* error message */
+
+p#error-message-area {
+    color: var(--danger);
+    background-color: var(--light-danger);
+    padding-left: 30px;
+}
+
+
+/* statistic table */
+
+table#statistic-table {
+    float: right;
+}
+
+table#statistic-table td,
+table#statistic-table th {
+    border: 1px solid var(--black);
 }
