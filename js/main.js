@@ -75,6 +75,7 @@ function runAlgorithm() {
     //console.log('PROCESS LIST\t', resultProcessList);
     renderResult(resultProcessList, cpuBox, ioBox, readyQueue);
 }
+
 function checkSpecialConditionOfAlgorithm(quantumCounter, readyQueueAtTime, cpuRemainingTime, currentProcessList) {
     let roundRobin = (algo != 'rr' || quantumCounter > 0);
     let minCpuProcess = getMinCpuProcessInReadyQueue(readyQueueAtTime, currentProcessList);
