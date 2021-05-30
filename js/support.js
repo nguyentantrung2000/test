@@ -19,15 +19,21 @@ function Data() {
 }
 
 // initiate values
-var processList = new ProcessList(new Data().processData);
-var algo = 'fcfs';
-var quantum = 2;
+let processList = new ProcessList(new Data().processData);
+let algo = 'rr';
+let quantum = 2;
 
 main();
 function main() {
     renderFormTable();
     setupControlEvents();
     setupForm();
+}
+
+// ALGORITHM
+function runAlgorithm() {
+    const [pList, cpuBox, ioBox, readyQueue] = new Algorithm().run(processList, algo, quantum);
+    renderResult(pList, cpuBox, ioBox, readyQueue);
 }
 
 // SETUP
@@ -71,9 +77,11 @@ function setupForm() {
         const errMessageArea = document.getElementById('error-message-area');
         const errMessage = processList.getError();
         if (!errMessage) {
-            runAlgorithm(processList);
             // clear error message
             errMessageArea.innerHTML = '';
+
+            // run algorithm
+            runAlgorithm();
         }
         else {
             // show error message
@@ -108,14 +116,14 @@ function updateProcessList() {
     let step = arrivalIndexArr[1] - arrivalIndexArr[0];
     let processes = arrivalIndexArr.map((val, index) => {
         let data = entries.slice(val, val + step);
-        let arrival = Number.parseInt(data[0][1]);
+        let arrival = data[0][1];
         let cpus = [];
         let ios = [];
         data.slice(1).forEach(item => {
             if (item[0].indexOf('cpu') > -1) cpus.push(item[1]);
             else ios.push(item[1]);
         })
-        return new Process(`p${index + 1} `, arrival, cpus, ios);
+        return new Process(`p${index + 1}`, arrival, cpus, ios);
     })
     processList.list = processes;
 
@@ -323,9 +331,18 @@ function drawTableCell(isCurrent, showLabel, rowP, pColor, isEmpty = false, prev
             content = `<span>${rowP.name}</span>`;
         }
     } else {
-        if (time == rowP.arrival) htmlClass += `border-dashes-left-${pColor[rowP.name]}`;
+        if (time == rowP.arrival) htmlClass += ` border-dashes-left-${pColor[rowP.name]}`;
+        if (isWaitingForCpu(time, rowP.cpuRequestHistories)) htmlClass += ` border-dashes-bottom-${pColor[rowP.name]}`;
     }
     return `<td class="${htmlClass}">${content}</td> `;
+}
+
+function isWaitingForCpu(time, cpuRequestHistories) {
+    for (let i = 0; i < cpuRequestHistories.length; i++) {
+        let item = cpuRequestHistories[i];
+        if (time >= item[0] && time < item[1]) return true;
+    }
+    return false;
 }
 
 function getEmptyLevelClass(prev, next) {

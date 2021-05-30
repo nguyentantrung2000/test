@@ -23,7 +23,7 @@ function ProcessList(list) {
     this.clone = function () {
         let plainObject = JSON.parse(JSON.stringify(this));
         let processes = plainObject.list.map(p => {
-            return new Process(p.name, p.arrival, p.cpus, p.ios);
+            return new Process(p.name, p.arrival, p.cpus, p.ios, p.cpuRequests);
         })
         let processList = new ProcessList(processes);
         return processList;
@@ -37,6 +37,11 @@ function ProcessList(list) {
 
     this.getProcessByName = function (name) {
         return this.list.filter(item => item.name == name)[0];
+    }
+
+    this.calculationTimes = function (cpuBox) {
+        this.list.forEach(process => process.calculateTimes(cpuBox))
+        this.calculateAverageTimes();
     }
 
     this.calculateAverageTimes = function () {
@@ -73,14 +78,19 @@ function ProcessList(list) {
             }
 
             // 3. no 0 between
-            if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1) {
+            if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1 || this.isZeroValueInTheMiddle(p.cpus, p.ios, lastNonZeroIoIndex + 1)) {
                 err = `Process "${p.name}" must not have empty value in the middle`;
                 break;
             }
-
-
         }
         return err;
+    }
+
+    this.isZeroValueInTheMiddle = function (arr1, arr2, n) {
+        for (let i = 0; i < n; i++) {
+            if (arr1[i] == 0 || arr2[i] == 0) return true;
+        }
+        return false;
     }
 
     this.getLastNonZeroValIndex = function (arr) {
@@ -100,9 +110,10 @@ function ProcessList(list) {
     }
 }
 
-function Process(name, arrival, cpus, ios) {
+function Process(name, arrival, cpus, ios, cpuRequests = null) {
     this.name = name;
     this.arrival = arrival;
+    this.cpuRequests = cpuRequests || [arrival];
     this.cpus = cpus.map(val => {
         let n = Number.parseInt(val);
         return Number.isNaN(n) ? 0 : n;
@@ -112,8 +123,59 @@ function Process(name, arrival, cpus, ios) {
         return Number.isNaN(n) ? 0 : n;
     });
 
+    // ADD REQUEST
     this.addNewRequest = function () {
         this.cpus.push(0);
         this.ios.push(0);
     }
+
+    // CALCULATE TIMES
+    this.calculateTimes = function (cpuBox) {
+        this.cpuRequestHistories = this.getCpuRequestHistories(cpuBox);
+        this.waitingTime = this.getProcessWaitingTime();
+        this.responseTime = this.cpuRequestHistories[0][1] - this.cpuRequestHistories[0][0];
+        this.turnAroundTime = this.getProcessTurnAroundTime(cpuBox);
+    }
+
+    this.getCpuRequestHistories = function (cpuBox) {
+        return this.cpuRequests.map(request => {
+            const grantedTime = this.getFirstGrantedCpuTimeOfProcess(cpuBox, request);
+            return [request, grantedTime];
+        })
+    }
+
+    this.getProcessWaitingTime = function () {
+        return this.cpuRequestHistories.reduce((prev, current) => {
+            return prev + (current[1] - current[0]);
+        }, 0);
+    }
+
+    this.getProcessTurnAroundTime = function (cpuBox) {
+        const endCpuTime = this.getEndCpuTimeOfProcess(cpuBox);
+        const firstGranted = this.getFirstGrantedCpuTimeOfProcess(cpuBox);
+        return endCpuTime - firstGranted + this.responseTime + 1;
+    }
+
+    this.getFirstGrantedCpuTimeOfProcess = function (cpuBox, start = 0) {
+        let index = -1;
+        for (let i = start; i < cpuBox.length; i++) {
+            if (cpuBox[i] == this.name) {
+                index = i
+                break;
+            }
+        }
+        return index;
+    }
+
+    this.getEndCpuTimeOfProcess = function (cpuBox) {
+        let index = -1;
+        for (let key = cpuBox.length - 1; key >= 0; key--) {
+            if (cpuBox[key] == this.name) {
+                index = key
+                break;
+            }
+        }
+        return index;
+    }
+
 }

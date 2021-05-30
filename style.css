@@ -346,4 +346,15 @@ table#statistic-table th {
     border: 1px solid var(--light-grey)
 }
 
-table#result-table td:nth-child(even) {}
+table#statistic-table td:first-child {
+    font-weight: bold;
+}
+
+table#statistic-table td:not(:first-child) {
+    text-align: right;
+}
+
+table#statistic-table td {
+    padding-left: 5px;
+    padding-right: 5px;
+}
