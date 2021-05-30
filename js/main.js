@@ -65,7 +65,7 @@ function runAlgorithm() {
     resultProcessList.list.forEach(process => {
         process.waitingTime = getProcessWaitingTime(cpuBox, process);
         process.responseTime = getProcessResponseTime(cpuBox, process);
-        process.turnAroundTime = getProcessTurnAroundTime(cpuBox, process);
+        process.turnAroundTime = getProcessTurnAroundTime(cpuBox, process.responseTime, process);
     })
     resultProcessList.calculateAverageTimes();
 
@@ -75,7 +75,6 @@ function runAlgorithm() {
     //console.log('PROCESS LIST\t', resultProcessList);
     renderResult(resultProcessList, cpuBox, ioBox, readyQueue);
 }
-
 function checkSpecialConditionOfAlgorithm(quantumCounter, readyQueueAtTime, cpuRemainingTime, currentProcessList) {
     let roundRobin = (algo != 'rr' || quantumCounter > 0);
     let minCpuProcess = getMinCpuProcessInReadyQueue(readyQueueAtTime, currentProcessList);
@@ -302,8 +301,14 @@ function getProcessWaitingTime(cpuBox, process) {
     return waitingTime;
 }
 
-function getProcessTurnAroundTime(cpuBox, process) {
-    return getEndCpuTimeOfProcess(cpuBox, process.name) - getFirstGrantedCpuTimeOfProcess(cpuBox, process.name);
+function getProcessTurnAroundTime(cpuBox, responseTime, process) {
+    const endCpuTime = getEndCpuTimeOfProcess(cpuBox, process.name);
+    const firstGranted = getFirstGrantedCpuTimeOfProcess(cpuBox, process.name);
+    console.log('\naround time p\t', process.name);
+    console.log('end\t\t\t\t', endCpuTime);
+    console.log('first\t\t\t', firstGranted);
+    console.log('res\t\t\t\t', responseTime);
+    return endCpuTime - firstGranted + responseTime + 1;
 }
 
 function getFirstGrantedCpuTimeOfProcess(cpuBox, pName) {

@@ -20,7 +20,7 @@ function Data() {
 
 // initiate values
 var processList = new ProcessList(new Data().processData);
-var algo = 'srtf';
+var algo = 'fcfs';
 var quantum = 2;
 
 main();
@@ -56,7 +56,7 @@ function setupControlEvents() {
         renderFormTable(processList);
     })
     resetBtn.addEventListener('click', () => {
-        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('result-table-area').innerHTML = '';
         processList = new ProcessList(new Data().processData);
         renderFormTable();
     })
@@ -203,18 +203,26 @@ function renderResult(resultProcessList, cpuBox, ioBox, readyQueue) {
     let algorithmName = (algo == 'rr') ? `${algo.toUpperCase()} Algorithm (q=${quantum})` : `${algo.toUpperCase()} Algorithm`;
     algorithmHeading.innerText = algorithmName;
 
-    // table
-    let htmlStr = `
+
+    // display result box
+    document.getElementById('result-box').style.display = 'block';
+
+    // result table
+    document.getElementById('result-table-area').innerHTML = getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue);
+
+    // statistic table
+    document.getElementById('statistic-table-area').innerHTML = getStatisticTableHtml(resultProcessList);
+}
+
+function getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue) {
+    let html = `
         <table id="result-table" class="table">
             ${getResultTableTHeadHtml(cpuBox.length)}
             ${getResultTableTBodyHtml(resultProcessList, cpuBox, ioBox, readyQueue)}
         </table>`;
-
-    // display
-    document.getElementById('result-box').style.display = 'block';
-    const resultTableArea = document.getElementById('result-table-area');
-    resultTableArea.innerHTML = htmlStr;
+    return html;
 }
+
 
 function getResultTableTHeadHtml(length) {
     let thHtml = '';
@@ -354,7 +362,60 @@ function getReadyQueueHtml(pList, readyQueue) {
 }
 
 // GENERATE STATISTIC TABLE
-function renderStatisticTable(pList) {
+function getStatisticTableHtml(resultProcessList) {
+    let html = `
+        <table id="statistic-table" class="table">
+            ${getStatisticTableTHeadHtml()}
+            ${getStatisticTableTBodyHtml(resultProcessList)}
+        </table>`;
+    return html;
+}
+
+function getStatisticTableTHeadHtml() {
+    return `
+        <thead>
+            <tr>
+                <th>Process</th>
+                <th>R</th>
+                <th>W</th>
+                <th>T</th>
+            </tr>
+        </thead> `;
+}
+function getStatisticTableTBodyHtml(pList) {
+    return `
+        <tbody>
+            ${getStatisticDataRows(pList)}
+            ${getStatisticAverageRow(pList)}
+        </tbody>
+          `;
+}
+
+function getStatisticDataRows(pList) {
+    const trArr = pList.list.map((p) => {
+        return `
+            <tr>
+                <td>${p.name}</td>
+                <td>${p.responseTime}</td>
+                <td>${p.waitingTime}</td>
+                <td>${p.turnAroundTime}</td>
+            </tr> `;
+    })
+    return convertArrayToString(trArr);
+}
+
+function getStatisticAverageRow(pList) {
+    const formatNumber = (val) => {
+        return val.toFixed(2)
+    }
+    let html = `
+        <tr>
+            <th>Average</th>
+            <td>${formatNumber(pList.avgResponseTime)}</td>
+            <td>${formatNumber(pList.avgWaitingTime)}</td>
+            <td>${formatNumber(pList.avgTurnAroundTime)}</td>
+        </tr> `;
+    return html
 }
 
 // OTHER FUNCTIONS

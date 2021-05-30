@@ -1,16 +1,17 @@
 :root {
+    /* color */
     --primary-color: #3f51b5;
     --secondary-color: #f44336;
     --accent-color: #F5F1DE;
     --white: #ffffff;
     --black: #000000;
-    /* process background colors */
     --danger: #dc3545;
     --light-danger: #f8d7da;
     --orange: #ff7100;
     --red: #FF0000;
     --blue: #00B0F0;
     --green: #92D050;
+    --light-grey: #dddddd;
     /* border */
     --empty-border: 2px dashed var(--black);
 }
@@ -319,10 +320,30 @@ p#error-message-area {
 /* statistic table */
 
 table#statistic-table {
+    width: 300px;
+    background-color: var(--white);
     float: right;
+}
+
+@media only screen and (max-width: 350px) {
+    table#statistic-table {
+        width: 100%;
+    }
+}
+
+table#statistic-table tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+table#statistic-table tbody tr:last-child {
+    background-color: dodgerblue;
+    color: var(--white);
+    font-weight: bold;
 }
 
 table#statistic-table td,
 table#statistic-table th {
-    border: 1px solid var(--black);
+    border: 1px solid var(--light-grey)
 }
+
+table#result-table td:nth-child(even) {}
