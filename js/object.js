@@ -114,6 +114,7 @@ function Process(name, arrival, cpus, ios, cpuRequests = null) {
     this.name = name;
     this.arrival = arrival;
     this.cpuRequests = cpuRequests || [arrival];
+
     this.cpus = cpus.map(val => {
         let n = Number.parseInt(val);
         return Number.isNaN(n) ? 0 : n;

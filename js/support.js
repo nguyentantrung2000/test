@@ -1,26 +1,26 @@
 // MAIN
-function Data() {
-    this.processData = [
+class Data {
+    static colors = ['blue', 'green', 'red', 'orange',];
+
+    static lectureData = [
         new Process('p1', 0, [3, 4], [4]),
         new Process('p2', 1, [2, 2], [2]),
         new Process('p3', 2, [1, 3], [1]),
+    ];
 
-        //new Process('p4', 3, [3, 4], [4]),
-        //new Process('p5', 4, [2, 2], [2]),
-        //new Process('p6', 5, [1, 3], [1]),
+    static exerciseData = [
+        new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
+        new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+        new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+    ];
 
-        //new Process('p7', 6, [3, 4], [4]),
-        //new Process('p8', 7, [2, 2], [2]),
-        //new Process('p9', 8, [1, 3], [1]),
+    static defaultProcessArr = this.lectureData;
 
-    ]
-
-    this.colors = ['blue', 'green', 'red', 'orange',];
 }
 
 // initiate values
-let processList = new ProcessList(new Data().processData);
-let algo = 'rr';
+let processList = new ProcessList(Data.defaultProcessArr);
+let algorithmName = 'fcfs';
 let quantum = 2;
 
 main();
@@ -32,7 +32,7 @@ function main() {
 
 // ALGORITHM
 function runAlgorithm() {
-    const algorithm = new Algorithm(processList, algo, quantum);
+    const algorithm = new Algorithm(processList, algorithmName, quantum);
     const [pList, cpuBox, ioBox, readyQueue] = algorithm.run();
     renderResult(pList, cpuBox, ioBox, readyQueue);
 }
@@ -67,7 +67,7 @@ function setupControlEvents() {
         document.getElementById('statistic-table-area').innerHTML = '';
         document.getElementById('algorithm-heading').innerHTML = '';
         document.getElementById('error-message-area').innerHTML = '';
-        processList = new ProcessList(new Data().processData);
+        processList = new ProcessList(Data.defaultProcessArr);
         renderFormTable();
     })
 }
@@ -94,7 +94,7 @@ function setupForm() {
     })
 
     algorithmSelect.addEventListener('change', (e) => {
-        algo = e.target.value;
+        algorithmName = e.target.value;
         renderOption();
     })
     quantumInput.addEventListener('change', (e) => {
@@ -120,7 +120,7 @@ function updateProcessList() {
     let step = arrivalIndexArr[1] - arrivalIndexArr[0];
     let processes = arrivalIndexArr.map((val, index) => {
         let data = entries.slice(val, val + step);
-        let arrival = data[0][1];
+        let arrival = (data.length > 0) ? data[0][1] : 0;
         let cpus = [];
         let ios = [];
         data.slice(1).forEach(item => {
@@ -138,8 +138,8 @@ function renderOption() {
     let algorithmSelect = document.getElementById('algorithm-select');
     let quantumContainer = document.getElementById('quantum-container');
     let quantumInput = document.getElementById('quantum-input');
-    algorithmSelect.value = algo;
-    let quantumDisplayVal = (algo === 'rr') ? 'block' : 'none';
+    algorithmSelect.value = algorithmName;
+    let quantumDisplayVal = (algorithmName === 'rr') ? 'block' : 'none';
     quantumContainer.style.display = quantumDisplayVal;
     quantumInput.value = quantum;
 }
@@ -212,8 +212,8 @@ function getNumberInputHtml(name, value, min = 1) {
 function renderResult(resultProcessList, cpuBox, ioBox, readyQueue) {
     // algorithm name
     let algorithmHeading = document.getElementById('algorithm-heading');
-    let algorithmName = (algo == 'rr') ? `${algo.toUpperCase()} Algorithm (q=${quantum})` : `${algo.toUpperCase()} Algorithm`;
-    algorithmHeading.innerText = algorithmName;
+    let algorithmHeadingVal = (algorithmName == 'rr') ? `${algorithmName.toUpperCase()} Algorithm (q=${quantum})` : `${algorithmName.toUpperCase()} Algorithm`;
+    algorithmHeading.innerText = algorithmHeadingVal;
 
 
     // display result box
@@ -251,13 +251,12 @@ function getResultTableTHeadHtml(length) {
 }
 
 function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue) {
-    const data = new Data();
     const pColor = {};
 
     // assign background color for each process
     pList.list.forEach((p, index) => {
-        const colorIndex = (index < data.colors.length) ? index : index % data.colors.length;
-        pColor[p.name] = data.colors[colorIndex]
+        const colorIndex = (index < Data.colors.length) ? index : index % Data.colors.length;
+        pColor[p.name] = Data.colors[colorIndex]
     })
 
     let cpuLevelHtml = getCpuLevelHtml(pList, cpuBox, pColor);

@@ -1,7 +1,7 @@
 class Algorithm {
     constructor(pList, algorithmName, quantum = 2) {
         this.maxCpuVal = 999999;
-        this.maxTime = 1000;
+        this.maxTime = 50;
 
         this.pList = pList;
         this.currentPList = this.pList.clone();
@@ -83,7 +83,7 @@ class Algorithm {
     // 4 ALGORITHMS
     fcfs(time) {
         // grant io for current process
-        if (this.currentP?.ios?.length > 0) this.grantIo();
+        if (this.isGrantIo()) this.grantIo();
 
         if (this.readyQueue[time][0]) {
             // grant cpu for the top process of ready queue
@@ -96,7 +96,7 @@ class Algorithm {
 
     sjf(time) {
         // grant io for current process
-        if (this.currentP?.ios?.length > 0) this.grantIo();
+        if (this.isGrantIo()) this.grantIo();
 
         if (this.readyQueue[time][0]) {
             // grant cpu for min cpu process
@@ -109,7 +109,7 @@ class Algorithm {
 
     srtf(time) {
         // grant io for current process
-        if (this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0) this.grantIo();
+        if (this.isGrantIo()) this.grantIo();
 
         const grantCpu = () => {
             if (this.readyQueue[time][0]) {
@@ -135,7 +135,7 @@ class Algorithm {
     roundRobin(time) {
         // grant io for current process 
         // when time = 0 => currentProcess = null => not grant IO 
-        if ((this.algorithmName != 'rr' || this.cpuRemainingTime == 0) && this.currentP?.ios?.length > 0) this.grantIo();
+        if (this.isGrantIo()) this.grantIo();
 
         // grant cpu for the top process of ready queue
         const grantCpuForTopProcess = () => {
@@ -155,6 +155,10 @@ class Algorithm {
             this.readyQueue[time].push(this.currentP.name);
             grantCpuForTopProcess();
         } else grantCpuForTopProcess();
+    }
+
+    isGrantIo() {
+        return (this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
     }
     // 
 
