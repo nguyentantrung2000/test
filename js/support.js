@@ -32,7 +32,8 @@ function main() {
 
 // ALGORITHM
 function runAlgorithm() {
-    const [pList, cpuBox, ioBox, readyQueue] = new Algorithm().run(processList, algo, quantum);
+    const algorithm = new Algorithm(processList, algo, quantum);
+    const [pList, cpuBox, ioBox, readyQueue] = algorithm.run();
     renderResult(pList, cpuBox, ioBox, readyQueue);
 }
 
@@ -63,6 +64,9 @@ function setupControlEvents() {
     })
     resetBtn.addEventListener('click', () => {
         document.getElementById('result-table-area').innerHTML = '';
+        document.getElementById('statistic-table-area').innerHTML = '';
+        document.getElementById('algorithm-heading').innerHTML = '';
+        document.getElementById('error-message-area').innerHTML = '';
         processList = new ProcessList(new Data().processData);
         renderFormTable();
     })
