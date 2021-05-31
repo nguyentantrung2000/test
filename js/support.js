@@ -4,7 +4,8 @@ const domEle = {
     quantumContainer: document.getElementById('quantum-container'),
     algorithmSelect: document.getElementById('algorithm-select'),
     quantumInput: document.getElementById('quantum-input'),
-    mainForm: document.getElementById('main-form'),
+    inputTableForm: document.getElementById('input-table-form'),
+    optionForm: document.getElementById('option-form'),
 
 
     // box
@@ -134,7 +135,7 @@ class FormTable {
     }
 
     loadProcessListFromTable() {
-        const formData = new FormData(domEle.mainForm)
+        const formData = new FormData(domEle.inputTableForm)
         const arrivalIndexArr = [];
         let i = 0;
 
@@ -194,9 +195,7 @@ class ResultBox {
 
         // display result box
         domEle.resultBox.style.display = 'block';
-        setTimeout(() => {
-            Helper.scrollToBottom();
-        }, ResultBox.renderingGapTime);
+        Helper.scrollToBottom();
     }
 
     renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
@@ -538,6 +537,8 @@ function Main() {
         this.formTable.render(this.processList);
         this.setupControlEvents();
         this.setupFormEvents();
+
+        document.getElementById(`${ResultBox.renderingMode}`).checked = true;
     }
 
     // ALGORITHM
@@ -572,8 +573,13 @@ function Main() {
     }
 
     this.setupFormEvents = function () {
-        domEle.mainForm.addEventListener('submit', (e) => {
+        domEle.inputTableForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            // rendering mode
+            const formData = new FormData(domEle.optionForm)
+            ResultBox.renderingMode = formData.get('rendering-mode');
+
+            //
             const errMessage = this.processList.getError();
             if (!errMessage) {
                 // clear error message

@@ -390,3 +390,20 @@ p#error-message-area {
 }
 
 table#result-table tbody td:not(.process-name) {}
+
+
+/* rendering mode */
+
+#rendering-mode-container {
+    display: flex;
+    margin-top: 10px;
+}
+
+.radio-button-container {
+    display: flex;
+}
+
+input[type="radio"]:checked+label {
+    color: dodgerblue;
+    font-weight: bold;
+}

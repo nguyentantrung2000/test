@@ -19,7 +19,7 @@
         <!-- MAIN CONTENT -->
         <div id="content-wrapper" class="container">
             <div class="box">
-                <form id="main-form">
+                <form id="input-table-form">
                     <!-- ERROR MESSAGE -->
                     <p id="error-message-area"></p>
 
@@ -54,6 +54,21 @@
                     <!-- TABLE -->
                     <div id="form-table-area">
                         <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
+                    </div>
+                </form>
+                <form id="option-form">
+                    <div id="rendering-mode-container">
+                        <span>Rendering mode</span>
+                        <div class="radio-button-container">
+                            <div>
+                                <input type="radio" name="rendering-mode" value="immediate" id="immediate">
+                                <label for="immediate">Immediate</label><br>
+                            </div>
+                            <div>
+                                <input type="radio" name="rendering-mode" value="playing" id="playing">
+                                <label for="playing">Playing</label><br>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
