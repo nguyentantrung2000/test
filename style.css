@@ -13,7 +13,7 @@
     --green: #92D050;
     --light-grey: #dddddd;
     --grey: #C6C6C6;
-    --highlight: #ff00b3;
+    --highlight: dodgerblue;
     /* border */
     --empty-border: 2px dashed var(--black);
 }
@@ -57,7 +57,7 @@ body {
 /* border right */
 
 .border-solid-right-highlight {
-    border-right: 4px solid var(--highlight);
+    border-right: 2px solid var(--highlight);
 }
 
 

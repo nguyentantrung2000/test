@@ -167,7 +167,7 @@ class Algorithm {
                 this.currentP = this.currentPList.getProcessByName(pName);
                 this.cpuBox[time] = this.currentP.name;
                 this.cpuRemainingTime = this.currentP.cpus.shift();
-                this.quantumCounter = quantum;
+                this.quantumCounter = this.quantum;
             }
         }
 
