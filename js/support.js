@@ -164,7 +164,7 @@ class FormTable {
 }
 
 class ResultBox {
-    static renderingMode = Data.renderResultMode.playing
+    static renderingMode = Data.renderResultMode.immediate
     static renderingGapTime = 200;
 
     algorithmName = null;
@@ -376,7 +376,6 @@ class ResultTable {
     }
 
     getHtmlHighlightClassIfPassCondition(time) {
-        console.log('highlight');
         const htmlClass = (time == this.maxTime - 1 && time < this.timelineLength - 1) ? ' border-solid-right-highlight' : '';
         return htmlClass;
     }
@@ -525,23 +524,24 @@ class Helper {
     }
 }
 
-class Main {
+new Main().run();
+function Main() {
 
     // initiate values
-    formTable = new FormTable();
-    processList = new ProcessList(new Data().defaultProcessArr);
-    algorithmName = 'fcfs';
-    quantum = 2;
+    this.formTable = new FormTable();
+    this.processList = new ProcessList(new Data().defaultProcessArr);
+    this.algorithmName = 'fcfs';
+    this.quantum = 2;
 
     // MAIN CODE HERE =============
-    constructor() {
+    this.run = function () {
         this.formTable.render(this.processList);
         this.setupControlEvents();
         this.setupFormEvents();
     }
 
     // ALGORITHM
-    runAlgorithm() {
+    this.runAlgorithm = function () {
         const algorithm = new Algorithm(this.processList, this.algorithmName, this.quantum);
         const [pList, cpuBox, ioBox, readyQueue] = algorithm.run();
         const resultBox = new ResultBox();
@@ -549,7 +549,7 @@ class Main {
     }
 
     // SETUP
-    setupControlEvents() {
+    this.setupControlEvents = function () {
         // add process btn click
         domEle.addProcessBtn.addEventListener('click', () => {
             this.processList.addNewProcess();
@@ -559,7 +559,7 @@ class Main {
         // add cpu btn click
         domEle.requestBtn.addEventListener('click', () => {
             this.processList.addNewRequest();
-            this.formTable.render(processList);
+            this.formTable.render(this.processList);
         })
         domEle.resetBtn.addEventListener('click', () => {
             domEle.resultTableArea.innerHTML = '';
@@ -571,7 +571,7 @@ class Main {
         })
     }
 
-    setupFormEvents() {
+    this.setupFormEvents = function () {
         domEle.mainForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const errMessage = this.processList.getError();
@@ -599,14 +599,11 @@ class Main {
         this.renderOption();
     }
 
-
-    renderOption() {
+    this.renderOption = function () {
         domEle.algorithmSelect.value = this.algorithmName;
         let quantumDisplayVal = (this.algorithmName === 'rr') ? 'block' : 'none';
         domEle.quantumContainer.style.display = quantumDisplayVal;
         domEle.quantumInput.value = this.quantum;
     }
-}
 
-// MAIN
-new Main();
+}
