@@ -1,25 +1,65 @@
-// MAIN
 class Data {
     static colors = ['blue', 'green', 'red', 'orange',];
 
-    static lectureData = [
-        new Process('p1', 0, [3, 4], [4]),
-        new Process('p2', 1, [2, 2], [2]),
-        new Process('p3', 2, [1, 3], [1]),
-    ];
+    static renderResultMode = {
+        immediate: 'immediate',
+        playing: 'playing',
+    }
 
-    static exerciseData = [
-        new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
-        new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
-        new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
-    ];
+    constructor() {
+        const lectureData = [
+            new Process('p1', 0, [3, 4], [4]),
+            new Process('p2', 1, [2, 2], [2]),
+            new Process('p3', 2, [1, 3], [1]),
+        ];
 
-    static defaultProcessArr = this.lectureData;
+        const exerciseData = [
+            new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
+            new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+            new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+        ];
+        this.defaultProcessArr = exerciseData;
+    }
+}
+
+// html dom elm
+const domEle = {
+    // form
+    quantumContainer: document.getElementById('quantum-container'),
+    algorithmSelect: document.getElementById('algorithm-select'),
+    quantumInput: document.getElementById('quantum-input'),
+    mainForm: document.getElementById('main-form'),
+
+
+    // box
+    resultBox: document.querySelector('.box:last-child'),
+
+    // table
+    formTableInputs: () => document.querySelectorAll('.table-input'),
+
+    // buttons
+    addProcessBtn: document.getElementById('add-process-btn'),
+    requestBtn: document.getElementById('add-request-btn'),
+    resetBtn: document.getElementById('reset-btn'),
+    controlBarButtons: document.querySelectorAll('.control-bar button'),
+
+    // area
+    resultTableArea: document.getElementById('result-table-area'),
+    statisticTableArea: document.getElementById('statistic-table-area'),
+    errorMessageArea: document.getElementById('error-message-area'),
+    formTableArea: document.getElementById('form-table-area'),
+
+    // heading
+    algorithmHeading: document.getElementById('algorithm-heading'),
 
 }
 
+// interface value
+let renderResultMode = Data.renderResultMode.immediate;
+let intervalRenderingTime = 400;
+
 // initiate values
-let processList = new ProcessList(Data.defaultProcessArr);
+let processList = new ProcessList(new Data().defaultProcessArr);
 let algorithmName = 'fcfs';
 let quantum = 2;
 
@@ -27,7 +67,8 @@ main();
 function main() {
     renderFormTable();
     setupControlEvents();
-    setupForm();
+    setupFormEvents();
+    setupResultBoxEvents();
 }
 
 // ALGORITHM
@@ -39,8 +80,7 @@ function runAlgorithm() {
 
 // SETUP
 function setupTableEvents() {
-    let inputs = document.querySelectorAll('.table-input');
-    inputs.forEach(input => {
+    domEle.formTableInputs().forEach(input => {
         input.addEventListener('change', () => {
             updateProcessList();
         })
@@ -48,64 +88,59 @@ function setupTableEvents() {
 }
 
 function setupControlEvents() {
-    let addProcessBtn = document.getElementById('add-process-btn');
-    let requestBtn = document.getElementById('add-request-btn');
-    let resetBtn = document.getElementById('reset-btn');
     // add process btn click
-    addProcessBtn.addEventListener('click', () => {
+    domEle.addProcessBtn.addEventListener('click', () => {
         processList.addNewProcess();
         renderFormTable(processList);
     })
 
     // add cpu btn click
-    requestBtn.addEventListener('click', () => {
+    domEle.requestBtn.addEventListener('click', () => {
         processList.addNewRequest();
         renderFormTable(processList);
     })
-    resetBtn.addEventListener('click', () => {
-        document.getElementById('result-table-area').innerHTML = '';
-        document.getElementById('statistic-table-area').innerHTML = '';
-        document.getElementById('algorithm-heading').innerHTML = '';
-        document.getElementById('error-message-area').innerHTML = '';
-        processList = new ProcessList(Data.defaultProcessArr);
+    domEle.resetBtn.addEventListener('click', () => {
+        domEle.resultTableArea.innerHTML = '';
+        domEle.statisticTableArea.innerHTML = '';
+        domEle.algorithmHeading.innerHTML = '';
+        domEle.errorMessageArea.innerHTML = '';
+        processList = new ProcessList(new Data().defaultProcessArr);
         renderFormTable();
     })
 }
 
-function setupForm() {
-    let algorithmSelect = document.getElementById('algorithm-select');
-    let quantumInput = document.getElementById('quantum-input');
-    let mainForm = document.getElementById('main-form');
-    mainForm.addEventListener('submit', (e) => {
+function setupFormEvents() {
+    domEle.mainForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const errMessageArea = document.getElementById('error-message-area');
         const errMessage = processList.getError();
         if (!errMessage) {
             // clear error message
-            errMessageArea.innerHTML = '';
+            domEle.errorMessageArea.innerHTML = '';
 
             // run algorithm
             runAlgorithm();
         }
         else {
             // show error message
-            errMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
+            domEle.errorMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
         }
     })
 
-    algorithmSelect.addEventListener('change', (e) => {
+    domEle.algorithmSelect.addEventListener('change', (e) => {
         algorithmName = e.target.value;
         renderOption();
     })
-    quantumInput.addEventListener('change', (e) => {
+    domEle.quantumInput.addEventListener('change', (e) => {
         quantum = e.target.value;
     })
 
     renderOption();
 }
+function setupResultBoxEvents() {
+}
 
 function updateProcessList() {
-    const formData = new FormData(document.querySelector('#main-form'))
+    const formData = new FormData(domEle.mainForm)
     const arrivalIndexArr = [];
     let i = 0;
     for (let item of formData.keys()) {
@@ -135,18 +170,14 @@ function updateProcessList() {
 
 // GENERATE FORM TABLE
 function renderOption() {
-    let algorithmSelect = document.getElementById('algorithm-select');
-    let quantumContainer = document.getElementById('quantum-container');
-    let quantumInput = document.getElementById('quantum-input');
-    algorithmSelect.value = algorithmName;
+    domEle.algorithmSelect.value = algorithmName;
     let quantumDisplayVal = (algorithmName === 'rr') ? 'block' : 'none';
-    quantumContainer.style.display = quantumDisplayVal;
-    quantumInput.value = quantum;
+    domEle.quantumContainer.style.display = quantumDisplayVal;
+    domEle.quantumInput.value = quantum;
 }
 
 function renderFormTable() {
-    let tableArea = document.getElementById('form-table-area');
-    tableArea.innerHTML = getTableHtml();
+    domEle.formTableArea.innerHTML = getTableHtml();
     setupTableEvents();
 
 }
@@ -209,32 +240,86 @@ function getNumberInputHtml(name, value, min = 1) {
 }
 
 // GENERATE RESULT TABLE
-function renderResult(resultProcessList, cpuBox, ioBox, readyQueue) {
-    // algorithm name
-    let algorithmHeading = document.getElementById('algorithm-heading');
-    let algorithmHeadingVal = (algorithmName == 'rr') ? `${algorithmName.toUpperCase()} Algorithm (q=${quantum})` : `${algorithmName.toUpperCase()} Algorithm`;
-    algorithmHeading.innerText = algorithmHeadingVal;
 
+function renderResult(resultProcessList, cpuBox, ioBox, readyQueue) {
+    // display result box
+    timelineLength = cpuBox.length;
+    domEle.resultBox.scrollLeft = 0;
+    // algorithm name
+    let algorithmHeadingVal = (algorithmName == 'rr') ? `${algorithmName.toUpperCase()} Algorithm (q=${quantum})` : `${algorithmName.toUpperCase()} Algorithm`;
+    domEle.algorithmHeading.innerText = algorithmHeadingVal;
+
+    if (renderResultMode == Data.renderResultMode.immediate) renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue);
+    else renderResultPlayingMode(resultProcessList, cpuBox, ioBox, readyQueue);
 
     // display result box
-    document.getElementById('result-box').style.display = 'block';
-
-    // result table
-    document.getElementById('result-table-area').innerHTML = getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue);
-
-    // statistic table
-    document.getElementById('statistic-table-area').innerHTML = getStatisticTableHtml(resultProcessList);
+    domEle.resultBox.style.display = 'block';
+    setTimeout(() => {
+        scrollToBottom();
+    }, intervalRenderingTime);
 }
 
-function getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue) {
+function renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
+    renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue);
+    renderStatisticTable(resultProcessList)
+}
+
+let timelineLength = 0;
+let resultTableMaxTime = 0;
+let renderResultTableInterval = null;
+let isRendering = false;
+function renderResultPlayingMode(resultPList, cpuBox, ioBox, readyQueue) {
+    toggleControlBar(false);
+    isRendering = true;
+
+    // render result table
+    renderResultTableInterval = setInterval(() => {
+        renderResultTable(resultPList, cpuBox, ioBox, readyQueue, resultTableMaxTime);
+
+        // scroll to current running cell
+        scrollToCurrentRunningCell()
+
+        if (resultTableMaxTime == cpuBox.length) onRenderResultFinish(resultPList);
+        resultTableMaxTime++;
+    }, intervalRenderingTime);
+}
+
+function onRenderResultFinish(resultPList) {
+    clearInterval(renderResultTableInterval)
+    toggleControlBar(true);
+    resultTableMaxTime = 0;
+    timelineLength = 0;
+    isRendering = false;
+    setTimeout(() => {
+        // statistic table
+        renderStatisticTable(resultPList);
+        scrollToBottom();
+    }, intervalRenderingTime);
+}
+
+function scrollToCurrentRunningCell() {
+    const runningCell = document.querySelector('table#result-table tbody td:last-child');
+    const halfClientBoxWidth = domEle.resultBox.clientWidth / 2;
+    const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
+    if (leftOffset > 0) scrollHorizontal(domEle.resultBox, leftOffset)
+}
+
+function renderResultTable(resultProcessList, cpuBox, ioBox, readyQueue, maxTime = -1) {
+    domEle.resultTableArea.innerHTML = getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime);
+}
+
+function renderStatisticTable(resultProcessList) {
+    domEle.statisticTableArea.innerHTML = getStatisticTableHtml(resultProcessList);
+}
+
+function getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime = -1) {
     let html = `
         <table id="result-table" class="table">
             ${getResultTableTHeadHtml(cpuBox.length)}
-            ${getResultTableTBodyHtml(resultProcessList, cpuBox, ioBox, readyQueue)}
+            ${getResultTableTBodyHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime)}
         </table>`;
     return html;
 }
-
 
 function getResultTableTHeadHtml(length) {
     let thHtml = '';
@@ -250,7 +335,7 @@ function getResultTableTHeadHtml(length) {
 
 }
 
-function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue) {
+function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue, maxTime = -1) {
     const pColor = {};
 
     // assign background color for each process
@@ -259,6 +344,11 @@ function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue) {
         pColor[p.name] = Data.colors[colorIndex]
     })
 
+    if (maxTime > -1) {
+        cpuBox = cpuBox.slice(0, maxTime);
+        ioBox = ioBox.slice(0, maxTime);
+        readyQueue = readyQueue.slice(0, maxTime);
+    }
     let cpuLevelHtml = getCpuLevelHtml(pList, cpuBox, pColor);
     let ioLevelHtml = getIoLevelHtml(pList, ioBox, pColor);
     let readyQueueHtml = getReadyQueueHtml(pList, readyQueue);
@@ -266,11 +356,19 @@ function getResultTableTBodyHtml(pList, cpuBox, ioBox, readyQueue) {
     return tBodyHtml;
 }
 
+function toggleControlBar(value) {
+    domEle.controlBarButtons.forEach(item => {
+        if (!value) item.setAttribute('disabled', 'disabled');
+        else item.removeAttribute('disabled');
+    })
+
+}
+
 function getCpuLevelHtml(pList, cpuBox, pColor) {
     let cpuTrArr = pList.list.map((p, index) => {
         let trHtml = '';
         let tdArr = cpuBox.map((pName, subIndex) => {
-            return drawTableCell(pName == p.name, cpuBox[subIndex - 1] != pName, p, pColor, pName == null, cpuBox[subIndex - 1], cpuBox[subIndex + 1], subIndex);
+            return drawTableCell(pName == p.name, cpuBox[subIndex - 1] != pName, p, pColor, subIndex, pName == null, cpuBox[subIndex - 1], cpuBox[subIndex + 1]);
         })
         let tdHtml = convertArrayToString(tdArr);
 
@@ -279,13 +377,13 @@ function getCpuLevelHtml(pList, cpuBox, pColor) {
             trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">CPU</th>
-                    <td>${p.name}</td>
+                    <td class="process-name">${p.name}</td>
                     ${tdHtml}
                 </tr> `;
         } else {
             trHtml = `
                 <tr>
-                    <td>${p.name}</td>
+                    <td class="process-name">${p.name}</td>
                     ${tdHtml}
                 </tr> `;
         }
@@ -300,20 +398,20 @@ function getIoLevelHtml(pList, ioBox, pColor) {
         let trHtml = '';
         let tdArr = ioBox.map((pNames, subIndex) => {
             const previousIo = ioBox[subIndex - 1] || [];
-            return drawTableCell(pNames.includes(p.name), !previousIo.includes(p.name), p, pColor);
+            return drawTableCell(pNames.includes(p.name), !previousIo.includes(p.name), p, pColor, subIndex);
         })
         let tdHtml = convertArrayToString(tdArr);
         if (index == 0) {
             trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">IO</th>
-                    <td>${p.name}</td>
+                    <td class="process-name">${p.name}</td>
                     ${tdHtml}
                 </tr> `;
         } else {
             trHtml = `
                 <tr>
-                    <td>${p.name}</td>
+                    <td class="process-name">${p.name}</td>
                     ${tdHtml}
                 </tr> `;
         }
@@ -323,21 +421,28 @@ function getIoLevelHtml(pList, ioBox, pColor) {
     return html;
 }
 
-function drawTableCell(isCurrent, showLabel, rowP, pColor, isEmpty = false, prevPname = null, nextPname = null, time = null) {
+function drawTableCell(isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
     let content = '';
-    let htmlClass = (isEmpty) ? getEmptyLevelClass(prevPname, nextPname) : '';
-
-    if (isCurrent) {
-        htmlClass = `bg-${pColor[rowP.name]}`;
-        if (showLabel) {
-            htmlClass += ' process-label ';
-            content = `<span>${rowP.name}</span>`;
-        }
-    } else {
-        if (time == rowP.arrival) htmlClass += ` border-dashes-left-${pColor[rowP.name]}`;
-        if (isWaitingForCpu(time, rowP.cpuRequestHistories)) htmlClass += ` border-dashes-bottom-${pColor[rowP.name]}`;
-    }
+    let htmlClass = getTableCellHtmlClasses(timelineLength, resultTableMaxTime, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
     return `<td class="${htmlClass}">${content}</td> `;
+}
+
+function getTableCellHtmlClasses(timelineLength, maxTime, time, isArrival, isShowLabel, isHoldingCpu, isEmpty, color, isWaitingForCpu, prevPname, nextPname) {
+    let htmlClass = (isEmpty) ? getEmptyLevelClass(prevPname, nextPname) : '';
+    if (isHoldingCpu) {
+        htmlClass = `bg-${color}`;
+        if (isShowLabel) htmlClass += ' process-label ';
+    } else {
+        if (isArrival) htmlClass += ` border-dashes-left-${color}`;
+        if (isWaitingForCpu) htmlClass += ` border-dashes-bottom-${color}`;
+    }
+    htmlClass += getHtmlHighlightClassIfPassCondition(timelineLength, maxTime, time);
+    return htmlClass;
+}
+
+function getHtmlHighlightClassIfPassCondition(timelineLength, maxTime, time) {
+    const htmlClass = (time == maxTime - 1 && time < timelineLength - 1) ? ' border-solid-right-highlight' : '';
+    return htmlClass;
 }
 
 function isWaitingForCpu(time, cpuRequestHistories) {
@@ -365,16 +470,16 @@ function getReadyQueueHtml(pList, readyQueue) {
         let queueTdHtml = '';
         for (let i = 0; i < pList.list.length; i++) {
             const value = subQueue[i] || '';
-            queueTdHtml += `<tr><td>${value}</td></tr>`;
+            queueTdHtml += `<tr><td >${value}</td></tr>`;
         }
         let queueTrHtml = `<table>${queueTdHtml}</table>`;
-
-        return `<td>${queueTrHtml}</td> `;
+        const htmlClass = getHtmlHighlightClassIfPassCondition(timelineLength, resultTableMaxTime, subIndex)
+        return `<td  class="${htmlClass}">${queueTrHtml}</td> `;
     })
     let tdHtml = convertArrayToString(tdArr);
     trHtml = `
             <tr id="ready-queue" class="level-row">
-                <th  class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
+                <th   class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
                 <td></td>
                 ${tdHtml}
             </tr> `;
@@ -449,4 +554,17 @@ function convertArrayToString(array) {
         return prev + current;
     }, '');
     return str;
+}
+
+function scrollHorizontal(element, offset) {
+    setTimeout(() => {
+        // scroll to the end
+        element.scrollLeft = offset;
+    }, intervalRenderingTime);
+}
+
+function scrollToBottom() {
+    setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, intervalRenderingTime);
 }

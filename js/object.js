@@ -112,7 +112,7 @@ function ProcessList(list) {
 
 function Process(name, arrival, cpus, ios, cpuRequests = null) {
     this.name = name;
-    this.arrival = arrival;
+    this.arrival = Number.parseInt(arrival);
     this.cpuRequests = cpuRequests || [arrival];
 
     this.cpus = cpus.map(val => {

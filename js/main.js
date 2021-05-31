@@ -1,13 +1,39 @@
 class Algorithm {
-    constructor(pList, algorithmName, quantum = 2) {
-        this.maxCpuVal = 999999;
-        this.maxTime = 50;
+    maxCpuVal = 999999;
+    maxTime = 1000;
 
+    algorithmName = null;
+    quantum = -1;
+
+    // input process list
+    pList = null;
+
+    // working process list
+    currentPList = null;
+
+    // current cpu holding process
+    currentP = null;
+
+    // contain processes back from io
+    tempQueue = [];
+
+    // array of time
+    timeline = [];
+
+    // initiate boxes
+    cpuBox = [];
+    ioBox = [];
+    readyQueue = [];
+
+    // counter
+    ioRemainingObj = {};
+    cpuRemainingTime = -1;
+    quantumCounter = -1;
+
+
+    constructor(pList, algorithmName, quantum = 2) {
         this.pList = pList;
         this.currentPList = this.pList.clone();
-        this.currentP = null;
-        // contain processes back from io
-        this.tempQueue = [];
 
         // array of time
         this.timeline = this.getTimeline()
@@ -15,12 +41,9 @@ class Algorithm {
         // initiate boxes
         this.cpuBox = this.timeline.map(x => null);
         this.ioBox = this.timeline.map(x => []);
-        this.readyQueue = [];
 
         // counter
         this.ioRemainingObj = this.initiateIoRemainingObj();
-        this.cpuRemainingTime = -1;
-        this.quantumCounter = -1;
 
         //
         this.algorithmName = algorithmName;
@@ -158,7 +181,7 @@ class Algorithm {
     }
 
     isGrantIo() {
-        return (this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
+        return (this.ioRemainingObj[this.currentP?.name] == -1 && this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
     }
     // 
 
@@ -286,17 +309,3 @@ class Algorithm {
         console.log('PROCESS LIST\t', this.currentPList);
     }
 }
-
-
-// LOG
-//function logDataAtTimePoint(cpuBox, ioBox, readyQueue, time) {
-    //console.log('CPU\t\t', cpuBox[time]);
-    //console.log('IO\t\t', [...this.ioBox[time]]);
-    //console.log('QUEUE\t', [...this.readyQueue[time]]);
-//}
-
-//function logBoxData(cpuBox, ioBox, readyQueue) {
-    //console.log('CPU BOX\t\t\t', cpuBox);
-    //console.log('IO BOX\t\t\t', this.ioBox);
-    //console.log('QUEUE BOX\t\t', this.readyQueue);gg
-//}
