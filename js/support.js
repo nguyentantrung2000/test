@@ -181,6 +181,7 @@ class ResultBox {
     }
 
     render(resultProcessList, cpuBox, ioBox, readyQueue, algorithmName, quantum) {
+        ResultBox.clearTables();
         this.algorithmName = algorithmName;
         this.quantum = quantum;
         // display result box
@@ -237,6 +238,16 @@ class ResultBox {
         const halfClientBoxWidth = domEle.resultBox.clientWidth / 2;
         const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
         if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultBox, leftOffset)
+    }
+
+    static clearTables() {
+        domEle.resultTableArea.innerHTML = '';
+        domEle.statisticTableArea.innerHTML = '';
+    }
+
+    static clear() {
+        ResultBox.clearTables();
+        domEle.algorithmHeading.innerHTML = '';
     }
 }
 
@@ -563,9 +574,7 @@ function Main() {
             this.formTable.render(this.processList);
         })
         domEle.resetBtn.addEventListener('click', () => {
-            domEle.resultTableArea.innerHTML = '';
-            domEle.statisticTableArea.innerHTML = '';
-            domEle.algorithmHeading.innerHTML = '';
+            ResultBox.clear();
             domEle.errorMessageArea.innerHTML = '';
             this.processList = new ProcessList(new Data().defaultProcessArr);
             this.formTable.render();

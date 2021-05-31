@@ -82,6 +82,19 @@ function ProcessList(list) {
                 err = `Process "${p.name}" must not have empty value in the middle`;
                 break;
             }
+
+            // 4. unique arrival
+            const arrivalCountObj = {};
+            const arrivals = this.list.map(p => p.arrival);
+            arrivals.forEach(item => {
+                if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
+                else arrivalCountObj[item]++;
+            })
+            for (let key in arrivalCountObj)
+                if (arrivalCountObj[key] > 1) {
+                    err = `Arrival of process must unique`;
+                    break;
+                }
         }
         return err;
     }
