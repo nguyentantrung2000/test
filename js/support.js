@@ -1,26 +1,12 @@
-class Data {
-    static colors = ['blue', 'green', 'red', 'orange',];
+// interface value
+let renderResultMode = Data.renderResultMode.playing
+let intervalRenderingTime = 400;
 
-    static renderResultMode = {
-        immediate: 'immediate',
-        playing: 'playing',
-    }
+// initiate values
+let processList = new ProcessList(new Data().defaultProcessArr);
+let algorithmName = 'fcfs';
+let quantum = 2;
 
-    constructor() {
-        const lectureData = [
-            new Process('p1', 0, [3, 4], [4]),
-            new Process('p2', 1, [2, 2], [2]),
-            new Process('p3', 2, [1, 3], [1]),
-        ];
-
-        const exerciseData = [
-            new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
-            new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
-            new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
-        ];
-        this.defaultProcessArr = exerciseData;
-    }
-}
 
 // html dom elm
 const domEle = {
@@ -54,21 +40,12 @@ const domEle = {
 
 }
 
-// interface value
-let renderResultMode = Data.renderResultMode.immediate;
-let intervalRenderingTime = 400;
-
-// initiate values
-let processList = new ProcessList(new Data().defaultProcessArr);
-let algorithmName = 'fcfs';
-let quantum = 2;
 
 main();
 function main() {
     renderFormTable();
     setupControlEvents();
     setupFormEvents();
-    setupResultBoxEvents();
 }
 
 // ALGORITHM
@@ -136,14 +113,14 @@ function setupFormEvents() {
 
     renderOption();
 }
-function setupResultBoxEvents() {
-}
 
 function updateProcessList() {
     const formData = new FormData(domEle.mainForm)
     const arrivalIndexArr = [];
     let i = 0;
+
     for (let item of formData.keys()) {
+        console.log('item', item);
         if (item.includes('arrival')) arrivalIndexArr.push(i);
         i++;
     }
@@ -236,7 +213,9 @@ function getCpuAndIoColumn(item, index) {
 }
 
 function getNumberInputHtml(name, value, min = 1) {
-    return `<td td > <input class="table-input" name="${name}" value="${value}" type="number" min="${min}" /></td > `;
+    return `<td>
+                <input class="table-input" name="${name}" value="${value}" type="number" min="${min}" max="100" step="1"/>
+            </td> `;
 }
 
 // GENERATE RESULT TABLE
@@ -368,7 +347,7 @@ function getCpuLevelHtml(pList, cpuBox, pColor) {
     let cpuTrArr = pList.list.map((p, index) => {
         let trHtml = '';
         let tdArr = cpuBox.map((pName, subIndex) => {
-            return drawTableCell(pName == p.name, cpuBox[subIndex - 1] != pName, p, pColor, subIndex, pName == null, cpuBox[subIndex - 1], cpuBox[subIndex + 1]);
+            return drawTableCell('cpu', pName == p.name, cpuBox[subIndex - 1] != pName, p, pColor, subIndex, pName == null, cpuBox[subIndex - 1], cpuBox[subIndex + 1]);
         })
         let tdHtml = convertArrayToString(tdArr);
 
@@ -398,7 +377,7 @@ function getIoLevelHtml(pList, ioBox, pColor) {
         let trHtml = '';
         let tdArr = ioBox.map((pNames, subIndex) => {
             const previousIo = ioBox[subIndex - 1] || [];
-            return drawTableCell(pNames.includes(p.name), !previousIo.includes(p.name), p, pColor, subIndex);
+            return drawTableCell('io', pNames.includes(p.name), !previousIo.includes(p.name), p, pColor, subIndex);
         })
         let tdHtml = convertArrayToString(tdArr);
         if (index == 0) {
@@ -421,18 +400,18 @@ function getIoLevelHtml(pList, ioBox, pColor) {
     return html;
 }
 
-function drawTableCell(isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
-    let content = '';
-    let htmlClass = getTableCellHtmlClasses(timelineLength, resultTableMaxTime, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
+function drawTableCell(level, isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
+    let content = (showLabel && isCurrent) ? rowP.name : '';
+    let htmlClass = getTableCellHtmlClasses(level, timelineLength, resultTableMaxTime, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
     return `<td class="${htmlClass}">${content}</td> `;
 }
 
-function getTableCellHtmlClasses(timelineLength, maxTime, time, isArrival, isShowLabel, isHoldingCpu, isEmpty, color, isWaitingForCpu, prevPname, nextPname) {
+function getTableCellHtmlClasses(level, timelineLength, maxTime, time, isArrival, isShowLabel, isHoldingCpu, isEmpty, color, isWaitingForCpu, prevPname, nextPname) {
     let htmlClass = (isEmpty) ? getEmptyLevelClass(prevPname, nextPname) : '';
     if (isHoldingCpu) {
         htmlClass = `bg-${color}`;
         if (isShowLabel) htmlClass += ' process-label ';
-    } else {
+    } else if (level == 'cpu') {
         if (isArrival) htmlClass += ` border-dashes-left-${color}`;
         if (isWaitingForCpu) htmlClass += ` border-dashes-bottom-${color}`;
     }

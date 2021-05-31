@@ -1,4 +1,28 @@
 // DEFINE OBJECTS
+class Data {
+    static colors = ['blue', 'green', 'red', 'orange',];
+
+    static renderResultMode = {
+        immediate: 'immediate',
+        playing: 'playing',
+    }
+
+    constructor() {
+        const lectureData = [
+            new Process('p1', 0, [3, 4], [4]),
+            new Process('p2', 1, [2, 2], [2]),
+            new Process('p3', 2, [1, 3], [1]),
+        ];
+
+        const exerciseData = [
+            new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
+            new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+            new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+        ];
+        this.defaultProcessArr = exerciseData;
+    }
+}
+
 function ProcessList(list) {
     this.list = list;
 
