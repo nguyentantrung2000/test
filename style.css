@@ -14,11 +14,12 @@
     --light-grey: #dddddd;
     --grey: #C6C6C6;
     --highlight: dodgerblue;
+    --divider-color: rgb(252, 216, 150);
     /* border */
     --empty-border: 2px dashed var(--black);
 }
 
-html, .box {
+html, .table-area {
     scroll-behavior: smooth;
 }
 
@@ -29,19 +30,19 @@ body {
 /* background color */
 
 .bg-red {
-    background-color: var(--red);
+    background-color: var(--red) !important;
 }
 
 .bg-orange {
-    background-color: var(--orange);
+    background-color: var(--orange) !important;
 }
 
 .bg-green {
-    background-color: var(--green);
+    background-color: var(--green) !important;
 }
 
 .bg-blue {
-    background-color: var(--blue);
+    background-color: var(--blue) !important;
 }
 
 /* text color */
@@ -144,12 +145,14 @@ button:hover, button#reset-btn:hover {
 }
 
 .box {
-    overflow-x: auto;
     background-color: var(--accent-color);
     border: 1px solid var(--black);
     margin: 50px 200px;
-    margin-bottom: 0;
     padding: 50px;
+}
+
+.table-area {
+    overflow-x: auto;
 }
 
 @media only screen and (max-width: 1300px) {
@@ -158,10 +161,6 @@ button:hover, button#reset-btn:hover {
         margin: 50px 50px;
         padding: 50px 50px;
     }
-}
-
-#content-wrapper {
-    padding-bottom: 50px;
 }
 
 #content-wrapper .row {
@@ -178,6 +177,18 @@ div#result-box {
     display: block;
 }
 
+table#result-table>thead th {
+    min-width: 25px;
+}
+
+table#result-table table {
+    width: 100%;
+}
+
+table#result-table td, table#result-table th {
+    text-align: center;
+}
+
 table#result-table {
     border-spacing: 0px;
     width: 100%;
@@ -191,23 +202,28 @@ table#result-table td {
     height: 30px;
 }
 
-table#result-table thead th {
-    text-align: left;
-}
-
 table#result-table .process-label {
     color: var(--white);
-}
-
-table#result-table tbody td:nth-child(odd) {
-    /*background-color: dodgerblue;*/
 }
 
 table#result-table th.level-thead, table#result-table th.process-thead {
     width: 150px;
 }
 
-table#result-table td {}
+/* COLUMN BACKGROUND
+
+table#result-table>tbody>tr:not(.level-row)>td:nth-child(even) {
+    background-color: var(--divider-color);
+}
+
+table#result-table>thead>tr>th:first-child {
+    background-color: transparent;
+}
+
+table#result-table>tbody>tr.level-row>td:nth-child(odd) {
+    background-color: var(--divider-color);
+}
+*/
 
 /* data table */
 
@@ -221,8 +237,9 @@ form#main-form {
     border-collapse: collapse;
 }
 
-td.process-name, th {
+th.process-name {
     padding: 5px;
+    text-align: left !important;
 }
 
 .form-table td, .form-table th {
@@ -242,6 +259,14 @@ td.process-name, th {
 }
 
 /* statistic table */
+
+.table-area {
+    margin-top: 30px;
+}
+
+table#statistic-table {
+    float: right;
+}
 
 table#statistic-table {
     width: 300px;
@@ -304,7 +329,7 @@ table#statistic-table td {
     }
     .box {
         padding: 10px;
-        margin: 0px;
+        margin: 10px 0px;
     }
 }
 

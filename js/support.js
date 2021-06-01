@@ -105,7 +105,7 @@ class FormTable {
         this.pList.list.forEach((item, index) => {
             let htmlStr = ` 
             <th scope="row">${index + 1}</th>
-            <td class="process-name">${item.name}</td>`;
+            <th class="process-name">${item.name}</th>`;
             htmlStr += this.getNumberInputHtml(`arrival - ${index} `, item.arrival, 0) + this.getCpuAndIoColumn(item, index);
             rows += `<tr> ${htmlStr}</tr> `;
         })
@@ -195,7 +195,9 @@ class ResultBox {
 
         // display result box
         domEle.resultBox.style.display = 'block';
-        Helper.scrollToBottom();
+        setTimeout(() => {
+            Helper.scrollToBottom();
+        }, ResultBox.renderingGapTime);
     }
 
     renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
@@ -229,10 +231,12 @@ class ResultBox {
     }
 
     scrollToCurrentRunningCell() {
-        const runningCell = document.querySelector('table#result-table tbody td:last-child');
-        const halfClientBoxWidth = domEle.resultBox.clientWidth / 2;
-        const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
-        if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultBox, leftOffset)
+        const runningCell = document.querySelector('table#result-table tbody tr:first-child td:last-child');
+        if (runningCell) {
+            const halfClientBoxWidth = domEle.resultTableArea.clientWidth / 2;
+            const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
+            if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultTableArea, leftOffset)
+        }
     }
 
     static clearTables() {
@@ -250,6 +254,7 @@ class ResultTable {
     timelineLength = 0;
     maxTime = 0;
     isRendering = false;
+    nPreCol = 2;
 
     constructor() {
     }
@@ -317,19 +322,19 @@ class ResultTable {
                 trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">CPU</th>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             } else {
                 trHtml = `
                 <tr>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             }
             return trHtml;
         })
-        const html = Helper.addSpacing(Helper.convertArrayToString(cpuTrArr));
+        const html = Helper.addSpacing(Helper.convertArrayToString(cpuTrArr), this.nPreCol, this.timelineLength);
         return html;
     }
 
@@ -345,19 +350,19 @@ class ResultTable {
                 trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">IO</th>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             } else {
                 trHtml = `
                 <tr>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             }
             return trHtml;
         })
-        const html = Helper.addSpacing(Helper.convertArrayToString(trArr));
+        const html = Helper.addSpacing(Helper.convertArrayToString(trArr), this.nPreCol, this.timelineLength);
         return html;
     }
 
@@ -404,7 +409,6 @@ class ResultTable {
     }
 
     getReadyQueueHtml(pList, readyQueue) {
-        // create 3 row
         let trHtml = '';
         let tdArr = readyQueue.map((subQueue, subIndex) => {
             let queueTdHtml = '';
@@ -419,8 +423,7 @@ class ResultTable {
         let tdHtml = Helper.convertArrayToString(tdArr);
         trHtml = `
             <tr id="ready-queue" class="level-row">
-                <th   class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
-                <td></td>
+                <th colspan="2"   class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
                 ${tdHtml}
             </tr> `;
         return trHtml;
@@ -496,8 +499,16 @@ class StatisticTable {
 }
 
 class Helper {
-    static addSpacing(value, n = 1) {
-        const html = `${value}${'<tr ><td colspan="1000"><br/></td></tr><tr class="tr-spacing"><td colspan="1000"><br/></td></tr>'.repeat(n)}`
+    static addSpacing(value, nPreCol, timelineLength, n = 1) {
+        let html = value;
+        let tdHtml = `<td colspan="${nPreCol}"></td>`;
+        for (let i = 0; i < timelineLength; i++) tdHtml += '<td></td>';
+        html += `   <tr>
+                        ${tdHtml}
+                    </tr>
+                    <tr class="tr-spacing">
+                        ${tdHtml}
+                    </tr>`.repeat(n);
         return html;
     }
 

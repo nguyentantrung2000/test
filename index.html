@@ -11,6 +11,7 @@
 
 <body>
     <div class="wrapper">
+
         <!-- APP BAR -->
         <div id="app-bar">
             <h2 id="title">CPU scheduling with separate I/O</h2>
@@ -18,8 +19,13 @@
 
         <!-- MAIN CONTENT -->
         <div id="content-wrapper" class="container">
+
+            <!-- INPUT BOX -->
             <div class="box">
+
+                <!-- INPUT FORM -->
                 <form id="input-table-form">
+
                     <!-- ERROR MESSAGE -->
                     <p id="error-message-area"></p>
 
@@ -33,6 +39,7 @@
 
                     <!-- OPTION BAR -->
                     <div class="option-bar">
+
                         <!-- ALGORITHM -->
                         <div>
                             <span>Algorithm</span>
@@ -44,7 +51,7 @@
                             </select>
                         </div>
 
-                        <!-- OPTIONAL -->
+                        <!-- QUANTUM -->
                         <div id="quantum-container">
                             <span>Quantum</span>
                             <input id="quantum-input" type="number" min="1" value="2">
@@ -52,11 +59,15 @@
                     </div>
 
                     <!-- TABLE -->
-                    <div id="form-table-area">
+                    <div id="form-table-area" class="table-area">
                         <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                     </div>
                 </form>
+
+                <!-- OPTION FORM -->
                 <form id="option-form">
+
+                    <!-- RENDERING MODE -->
                     <div id="rendering-mode-container">
                         <span>Rendering mode</span>
                         <div class="radio-button-container">
@@ -72,19 +83,28 @@
                     </div>
                 </form>
             </div>
+
+            <!-- RESULT BOX -->
             <div id="result-box" class="box">
+
+                <!-- HEADING -->
                 <h2 id="algorithm-heading"></h2>
 
-                <div id="result-table-area">
+                <!-- RESULT TABLE AREA -->
+                <div id="result-table-area" class="table-area">
                     <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                 </div>
+                
+                <!-- STATISTIC TABLE AREA -->
+                <div id="statistic-table-area" class="table-area">
 
-                <div id="statistic-table-area">
                     <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- SCRIPTS -->
     <script src="./js/object.js"></script>
     <script src="./js/support.js"></script>
     <script src="./js/main.js"></script>
