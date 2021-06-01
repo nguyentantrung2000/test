@@ -13,6 +13,8 @@ const domEle = {
 
     // table
     formTableInputs: () => document.querySelectorAll('#form-table-area table tbody input'),
+    resultTableTimeColumns: () => document.querySelectorAll('table#result-table th[time], table#result-table td[time]'),
+    resultTableTimeColumnsAtTime: (time) => document.querySelectorAll(`table#result-table th[time="${time}"], table#result-table td[time="${time}"]`),
 
     // buttons
     addProcessBtn: document.getElementById('add-process-btn'),
@@ -167,7 +169,7 @@ class FormTable {
 }
 
 class ResultBox {
-    static renderingMode = Data.renderResultMode.immediate
+    static renderingMode = Data.renderResultMode.playing
     static renderingGapTime = 200;
 
     algorithmName = null;
@@ -193,8 +195,32 @@ class ResultBox {
         let algorithmHeadingVal = (this.algorithmName == 'rr') ? `${this.algorithmName.toUpperCase()} Algorithm (q=${this.quantum})` : `${this.algorithmName.toUpperCase()} Algorithm`;
         domEle.algorithmHeading.innerText = algorithmHeadingVal;
 
-        if (ResultBox.renderingMode == Data.renderResultMode.immediate) this.renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue);
-        else this.renderResultPlayingMode(resultProcessList, cpuBox, ioBox, readyQueue);
+        let renderPromise = null;
+        if (ResultBox.renderingMode == Data.renderResultMode.immediate) renderPromise = this.renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue);
+        else renderPromise = this.renderResultPlayingMode(resultProcessList, cpuBox, ioBox, readyQueue);
+
+        // render finish
+        renderPromise.then(x => {
+            const hoverClass = 'td-hover';
+            this.onRenderResultFinish(resultProcessList);
+            domEle.resultTableTimeColumns().forEach(item => {
+                let time = item.getAttribute('time');
+                item.addEventListener('mouseenter', (e) => {
+                    const columns = domEle.resultTableTimeColumnsAtTime(time);
+                    columns.forEach(column => {
+                        column.classList.add(hoverClass);
+                    })
+                })
+
+                item.addEventListener('mouseleave', (e) => {
+                    const columns = domEle.resultTableTimeColumnsAtTime(time);
+                    columns.forEach(column => {
+                        column.classList.remove(hoverClass);
+                    })
+                })
+            });
+
+        })
 
         // display result box
         domEle.resultBox.style.display = 'block';
@@ -204,24 +230,28 @@ class ResultBox {
     }
 
     renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
-        this.resultTable.render(resultProcessList, cpuBox, ioBox, readyQueue, this.timelineLength);
-        this.statisticTable.render(resultProcessList)
+        return new Promise(resolve => {
+            this.resultTable.render(resultProcessList, cpuBox, ioBox, readyQueue, this.timelineLength);
+            resolve(true);
+        })
     }
 
     renderResultPlayingMode(resultPList, cpuBox, ioBox, readyQueue) {
-        Helper.toggleControlBar(false);
-        this.isRendering = true;
+        return new Promise(resolve => {
+            Helper.toggleControlBar(false);
+            this.isRendering = true;
 
-        // render result table
-        this.renderResultTableInterval = setInterval(() => {
-            this.resultTable.render(resultPList, cpuBox, ioBox, readyQueue, this.timelineLength, this.resultTableMaxTime);
+            // render result table
+            this.renderResultTableInterval = setInterval(() => {
+                this.resultTable.render(resultPList, cpuBox, ioBox, readyQueue, this.timelineLength, this.resultTableMaxTime);
 
-            // scroll to current running cell
-            this.scrollToCurrentRunningCell()
+                // scroll to current running cell
+                this.scrollToCurrentRunningCell()
 
-            if (this.resultTableMaxTime == cpuBox.length) this.onRenderResultFinish(resultPList);
-            this.resultTableMaxTime++;
-        }, ResultBox.renderingGapTime);
+                if (this.resultTableMaxTime == cpuBox.length) resolve(true)
+                this.resultTableMaxTime++;
+            }, ResultBox.renderingGapTime);
+        })
     }
 
     onRenderResultFinish(resultPList) {
@@ -279,7 +309,7 @@ class ResultTable {
 
     getResultTableTHeadHtml(length) {
         let thHtml = '';
-        for (let i = 0; i < length; i++) thHtml += `<th>${i}</th>`;
+        for (let i = 0; i < length; i++) thHtml += `<th time="${i}">${i}</th>`;
         return `
         <thead>
             <tr>
@@ -372,7 +402,7 @@ class ResultTable {
     drawTableCell(level, isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
         let content = (showLabel && isCurrent) ? rowP.name : '';
         let htmlClass = this.getTableCellHtmlClasses(level, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], this.isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
-        return `<td class="${htmlClass}">${content}</td> `;
+        return `<td class="${htmlClass}" time="${time}">${content}</td> `;
     }
 
     getTableCellHtmlClasses(level, time, isArrival, isShowLabel, isHoldingCpu, isEmpty, color, isWaitingForCpu, prevPname, nextPname) {
@@ -421,7 +451,7 @@ class ResultTable {
             }
             let queueTrHtml = `<table>${queueTdHtml}</table>`;
             const htmlClass = this.getHtmlHighlightClassIfPassCondition(subIndex)
-            return `<td  class="${htmlClass}">${queueTrHtml}</td> `;
+            return `<td  class="${htmlClass}" time="${subIndex}">${queueTrHtml}</td> `;
         })
         let tdHtml = Helper.convertArrayToString(tdArr);
         trHtml = `
@@ -505,7 +535,7 @@ class Helper {
     static addSpacing(value, nPreCol, timelineLength, n = 1) {
         let html = value;
         let tdHtml = `<td colspan="${nPreCol}"></td>`;
-        for (let i = 0; i < timelineLength; i++) tdHtml += '<td></td>';
+        for (let i = 0; i < timelineLength; i++) tdHtml += `<td time="${i}"></td>`;
         html += `   <tr>
                         ${tdHtml}
                     </tr>
@@ -550,7 +580,7 @@ function Main() {
     this.formTable = new FormTable();
     this.processList = new ProcessList(new Data().defaultProcessArr);
     this.algorithmName = 'fcfs';
-    this.quantum = 2;
+    this.quantum = 5;
 
     // MAIN CODE HERE =============
     this.run = function () {
