@@ -446,7 +446,14 @@ class ResultTable {
         let tdArr = readyQueue.map((subQueue, subIndex) => {
             let queueTdHtml = '';
             for (let i = 0; i < pList.list.length; i++) {
-                const value = subQueue[i] || '';
+                let value = '';
+                const queueProcesses = subQueue[i];
+                if (queueProcesses) {
+                    const pName = queueProcesses[0];
+                    const pCpu = queueProcesses[1];
+                    value = `<span title="${pName}: ${pCpu}">${pName}</span>`;
+                }
+
                 queueTdHtml += `<tr><td class="">${value}</td></tr>`;
             }
             let queueTrHtml = `<table>${queueTdHtml}</table>`;

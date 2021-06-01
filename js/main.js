@@ -110,8 +110,8 @@ class Algorithm {
 
         if (this.readyQueue[time][0]) {
             // grant cpu for the top process of ready queue
-            const pName = this.readyQueue[time].shift();
-            this.currentP = this.currentPList.getProcessByName(pName);
+            const p = this.readyQueue[time].shift();
+            this.currentP = this.currentPList.getProcessByName(p[0]);
             this.cpuBox[time] = this.currentP.name;
             this.cpuRemainingTime = this.currentP.cpus.shift();
         }
@@ -123,8 +123,8 @@ class Algorithm {
 
         if (this.readyQueue[time][0]) {
             // grant cpu for min cpu process
-            const [pName] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
-            this.currentP = this.currentPList.getProcessByName(pName);
+            const [p] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
+            this.currentP = this.currentPList.getProcessByName(p[0]);
             this.cpuBox[time] = this.currentP.name;
             this.cpuRemainingTime = this.currentP.cpus.shift();
         }
@@ -137,8 +137,8 @@ class Algorithm {
         const grantCpu = () => {
             if (this.readyQueue[time][0]) {
                 // find min cpu process name
-                const [pName] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
-                this.currentP = this.currentPList.getProcessByName(pName);
+                const [p] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
+                this.currentP = this.currentPList.getProcessByName(p[0]);
                 this.cpuBox[time] = this.currentP.name;
                 this.cpuRemainingTime = this.currentP.cpus.shift();
             }
@@ -147,7 +147,7 @@ class Algorithm {
         if (this.cpuRemainingTime > 0) {
             const rest = this.cpuRemainingTime;
             this.currentP.cpus.unshift(rest);
-            this.readyQueue[time].push(this.currentP.name);
+            this.readyQueue[time].push([this.currentP.name, rest]);
             grantCpu();
         } else {
             grantCpu();
@@ -163,8 +163,8 @@ class Algorithm {
         // grant cpu for the top process of ready queue
         const grantCpuForTopProcess = () => {
             if (this.readyQueue[time][0]) {
-                const pName = this.readyQueue[time].shift();
-                this.currentP = this.currentPList.getProcessByName(pName);
+                const p = this.readyQueue[time].shift();
+                this.currentP = this.currentPList.getProcessByName(p[0]);
                 this.cpuBox[time] = this.currentP.name;
                 this.cpuRemainingTime = this.currentP.cpus.shift();
                 this.quantumCounter = this.quantum;
@@ -175,7 +175,7 @@ class Algorithm {
             const rest = this.cpuRemainingTime;
             this.currentP.cpus.unshift(rest);
             this.currentP.cpuRequests.push(time);
-            this.readyQueue[time].push(this.currentP.name);
+            this.readyQueue[time].push([this.currentP.name, rest]);
             grantCpuForTopProcess();
         } else grantCpuForTopProcess();
     }
@@ -196,8 +196,8 @@ class Algorithm {
     getMinCpuProcessInReadyQueue(readyQueueAtTime) {
         let minProcess = null;
         let minCpuVal = this.maxCpuVal;
-        readyQueueAtTime.forEach((pName, index) => {
-            let process = this.currentPList.getProcessByName(pName);
+        readyQueueAtTime.forEach((p, index) => {
+            let process = this.currentPList.getProcessByName(p[0]);
             if (process.cpus[0] < minCpuVal) {
                 minProcess = process;
                 minCpuVal = process.cpus[0];
@@ -210,8 +210,8 @@ class Algorithm {
     getMinCpuProcessIndexInReadyQueue(readyQueueAtTime,) {
         let minCpuVal = this.maxCpuVal;
         let minCpuProcessIndex = 0;
-        readyQueueAtTime.forEach((pName, index) => {
-            let process = this.currentPList.getProcessByName(pName);
+        readyQueueAtTime.forEach((p, index) => {
+            let process = this.currentPList.getProcessByName(p[0]);
             if (process.cpus[0] < minCpuVal) {
                 minCpuVal = process.cpus[0];
                 minCpuProcessIndex = index;
@@ -240,7 +240,7 @@ class Algorithm {
                     tempP.cpuRequests.push(time + 1);
 
                     // "tempQueue" will be added to the end of ready queue at the next loop 
-                    this.tempQueue.push(key);
+                    this.tempQueue.push([tempP.name, tempP.cpus[0]]);
                 }
 
                 // decrease io counter of process
@@ -257,7 +257,7 @@ class Algorithm {
 
         // add arrival process at the end of ready queue
         if (arrivalPNames.length > 0) this.readyQueue[time] = [...this.readyQueue[time], ...arrivalPNames];
-        
+
 
         if (this.tempQueue.length > 0) {
             // add processes back from io at the end of ready queue

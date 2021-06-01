@@ -40,7 +40,7 @@ function ProcessList(list) {
                 return (p1.name.localeCompare(p2.name));
             })
         }
-        const pNames = processes.map(p => p.name);
+        const pNames = processes.map(p => [p.name, p.cpus[0]]);
         return pNames;
     }
 
