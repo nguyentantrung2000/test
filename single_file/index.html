@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
     <title>CPU scheduling with separate I/O</title>
-
 </head>
 
 <body>
-    <!-- CSS -->
     <style>
         :root {
             /* color */
@@ -40,7 +39,6 @@
         body {
             margin: 0px;
         }
-
 
         /* background color */
 
@@ -389,16 +387,20 @@
         p#error-message-area {
             color: var(--danger);
             background-color: var(--light-danger);
+            display: flex;
+            align-items: center;
             padding-left: 30px;
         }
-
-        table#result-table tbody td:not(.process-name) {}
 
         /* rendering mode */
 
         #rendering-mode-container {
             display: flex;
             margin-top: 10px;
+        }
+
+        #rendering-mode-container>span {
+            margin-right: 20px;
         }
 
         .radio-button-container {
@@ -410,8 +412,6 @@
             font-weight: bold;
         }
     </style>
-
-    <!-- HTML -->
     <div class="wrapper">
         <!-- APP BAR -->
         <div id="app-bar">
@@ -487,10 +487,8 @@
             </div>
         </div>
     </div>
-
-    <!-- JAVASCRIPT -->
     <script>
-        // OBJECT FILE =============================
+        // DEFINE OBJECTS
         function ProcessList(list) {
             this.list = list;
 
@@ -574,6 +572,19 @@
                         err = `Process "${p.name}" must not have empty value in the middle`;
                         break;
                     }
+
+                    // 4. unique arrival
+                    const arrivalCountObj = {};
+                    const arrivals = this.list.map(p => p.arrival);
+                    arrivals.forEach(item => {
+                        if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
+                        else arrivalCountObj[item]++;
+                    })
+                    for (let key in arrivalCountObj)
+                        if (arrivalCountObj[key] > 1) {
+                            err = `Arrival of process must unique`;
+                            break;
+                        }
                 }
                 return err;
             }
@@ -673,7 +684,8 @@
 
         }
 
-        // MAIN FILE ===============================
+    </script>
+    <script>
         class Algorithm {
             maxCpuVal = 999999;
             maxTime = 1000;
@@ -868,6 +880,7 @@
                 return (roundRobin && srtf);
             }
 
+
             getMinCpuProcessInReadyQueue(readyQueueAtTime) {
                 let minProcess = null;
                 let minCpuVal = this.maxCpuVal;
@@ -984,8 +997,8 @@
                 console.log('PROCESS LIST\t', this.currentPList);
             }
         }
-
-        // SUPPORT FILE ============================
+    </script>
+    <script>
         // HTML DOM ELM
         const domEle = {
             // form
@@ -1169,6 +1182,7 @@
             }
 
             render(resultProcessList, cpuBox, ioBox, readyQueue, algorithmName, quantum) {
+                ResultBox.clearTables();
                 this.algorithmName = algorithmName;
                 this.quantum = quantum;
                 // display result box
@@ -1213,11 +1227,7 @@
                 this.resultTableMaxTime = 0;
                 this.timelineLength = 0;
                 this.isRendering = false;
-                setTimeout(() => {
-                    // statistic table
-                    this.statisticTable.render(resultPList);
-                    Helper.scrollToBottom();
-                }, ResultBox.renderingGapTime);
+                this.statisticTable.render(resultPList);
             }
 
             scrollToCurrentRunningCell() {
@@ -1225,6 +1235,16 @@
                 const halfClientBoxWidth = domEle.resultBox.clientWidth / 2;
                 const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
                 if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultBox, leftOffset)
+            }
+
+            static clearTables() {
+                domEle.resultTableArea.innerHTML = '';
+                domEle.statisticTableArea.innerHTML = '';
+            }
+
+            static clear() {
+                ResultBox.clearTables();
+                domEle.algorithmHeading.innerHTML = '';
             }
         }
 
@@ -1551,12 +1571,10 @@
                     this.formTable.render(this.processList);
                 })
                 domEle.resetBtn.addEventListener('click', () => {
-                    domEle.resultTableArea.innerHTML = '';
-                    domEle.statisticTableArea.innerHTML = '';
-                    domEle.algorithmHeading.innerHTML = '';
+                    ResultBox.clear();
                     domEle.errorMessageArea.innerHTML = '';
                     this.processList = new ProcessList(new Data().defaultProcessArr);
-                    this.formTable.render();
+                    this.formTable.render(this.processList);
                 })
             }
 
@@ -1601,6 +1619,7 @@
             }
 
         }
+
     </script>
 </body>
 

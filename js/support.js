@@ -98,7 +98,6 @@ class FormTable {
             </tr>
         </thead>`;
         return tHead;
-
     }
 
     getFormTableTBodyHtml() {
@@ -226,11 +225,7 @@ class ResultBox {
         this.resultTableMaxTime = 0;
         this.timelineLength = 0;
         this.isRendering = false;
-        setTimeout(() => {
-            // statistic table
-            this.statisticTable.render(resultPList);
-            Helper.scrollToBottom();
-        }, ResultBox.renderingGapTime);
+        this.statisticTable.render(resultPList);
     }
 
     scrollToCurrentRunningCell() {
@@ -577,7 +572,7 @@ function Main() {
             ResultBox.clear();
             domEle.errorMessageArea.innerHTML = '';
             this.processList = new ProcessList(new Data().defaultProcessArr);
-            this.formTable.render();
+            this.formTable.render(this.processList);
         })
     }
 
