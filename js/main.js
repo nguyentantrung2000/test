@@ -250,13 +250,14 @@ class Algorithm {
     }
 
     solveReadyQueue(time) {
-        const arrivalProcess = this.currentPList.getProcessByArrival(time)[0];
+        const arrivalPNames = this.currentPList.getProcessNamesByArrival(time);
 
         // clone previous ready queue 
         this.readyQueue[time] = [...this.readyQueue[time - 1] || [],];
 
         // add arrival process at the end of ready queue
-        if (arrivalProcess) this.readyQueue[time].push(arrivalProcess.name);
+        if (arrivalPNames.length > 0) this.readyQueue[time] = [...this.readyQueue[time], ...arrivalPNames];
+        
 
         if (this.tempQueue.length > 0) {
             // add processes back from io at the end of ready queue

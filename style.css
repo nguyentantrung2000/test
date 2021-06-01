@@ -50,6 +50,18 @@ body {
 .text-white {
     color: var(--white);
 }
+.text-red {
+    color: var(--red);
+}
+.text-orange {
+    color: var(--orange);
+}
+.text-green {
+    color: var(--green);
+}
+.text-blue {
+    color: var(--blue);
+}
 
 /* border right */
 
@@ -152,7 +164,12 @@ button:hover, button#reset-btn:hover {
 }
 
 .table-area {
+    margin-top: 30px;
     overflow-x: auto;
+}
+
+#form-table-area{
+    margin-top: 0px;
 }
 
 @media only screen and (max-width: 1300px) {
@@ -179,6 +196,9 @@ div#result-box {
 
 table#result-table>thead th {
     min-width: 25px;
+    /*
+    min-width: 75px;
+    */
 }
 
 table#result-table table {
@@ -259,10 +279,6 @@ th.process-name {
 }
 
 /* statistic table */
-
-.table-area {
-    margin-top: 30px;
-}
 
 table#statistic-table {
     float: right;

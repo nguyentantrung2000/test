@@ -29,10 +29,19 @@ function ProcessList(list) {
         return processList;
     }
 
-    this.getProcessByArrival = function (time) {
-        return this.list.filter(item => {
+    this.getProcessNamesByArrival = function (time) {
+        let processes = this.list.filter(item => {
             return item.arrival == time;
         })
+
+        // sort processes by  process name
+        if (processes.length > 1) {
+            processes = processes.sort((p1, p2) => {
+                return (p1.name.localeCompare(p2.name));
+            })
+        }
+        const pNames = processes.map(p => p.name);
+        return pNames;
     }
 
     this.getProcessByName = function (name) {
@@ -83,18 +92,26 @@ function ProcessList(list) {
                 break;
             }
 
-            // 4. unique arrival
-            const arrivalCountObj = {};
-            const arrivals = this.list.map(p => p.arrival);
-            arrivals.forEach(item => {
-                if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
-                else arrivalCountObj[item]++;
-            })
-            for (let key in arrivalCountObj)
-                if (arrivalCountObj[key] > 1) {
-                    err = `Arrival of process must unique`;
+            // 4. process name not empty
+            for (let i = 0; i < this.list.length; i++) {
+                if (this.list[i].name.trim() == '') {
+                    err = `Process name required`;
                     break;
                 }
+            }
+
+            // 4. unique arrival
+            //const arrivalCountObj = {};
+            //const arrivals = this.list.map(p => p.arrival);
+            //arrivals.forEach(item => {
+            //if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
+            //else arrivalCountObj[item]++;
+            //})
+            //for (let key in arrivalCountObj)
+            //if (arrivalCountObj[key] > 1) {
+            //err = `Arrival of process must unique`;
+            //break;
+            //}
         }
         return err;
     }
@@ -124,7 +141,7 @@ function ProcessList(list) {
 }
 
 function Process(name, arrival, cpus, ios, cpuRequests = null) {
-    this.name = name;
+    this.name = name.trim();
     this.arrival = Number.parseInt(arrival);
     this.cpuRequests = cpuRequests || [arrival];
 

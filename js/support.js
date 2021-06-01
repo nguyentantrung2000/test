@@ -12,7 +12,7 @@ const domEle = {
     resultBox: document.querySelector('.box:last-child'),
 
     // table
-    formTableInputs: () => document.querySelectorAll('.table-input'),
+    formTableInputs: () => document.querySelectorAll('#form-table-area table tbody input'),
 
     // buttons
     addProcessBtn: document.getElementById('add-process-btn'),
@@ -49,8 +49,8 @@ class Data {
 
         const exerciseData = [
             new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
-            new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
-            new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+            new Process('p2', 0, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+            new Process('p3', 0, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
         ];
         this.defaultProcessArr = exerciseData;
     }
@@ -73,7 +73,6 @@ class FormTable {
             })
         })
     }
-
 
     getTableHtml() {
         let tableHtml = `<table table class="form-table" > ${this.getFormTableTHeadHtml()} ${this.getFormTableTBodyHtml()}</table > `;
@@ -105,8 +104,11 @@ class FormTable {
         this.pList.list.forEach((item, index) => {
             let htmlStr = ` 
             <th scope="row">${index + 1}</th>
-            <th class="process-name">${item.name}</th>`;
-            htmlStr += this.getNumberInputHtml(`arrival - ${index} `, item.arrival, 0) + this.getCpuAndIoColumn(item, index);
+            <td class="process-name">
+                <input type="text" minlength="1" required="required" maxlength="2" name="process-name" value="${item.name}" />
+                
+            </td>`;
+            htmlStr += this.getNumberInputHtml(`arrival-${index}`, item.arrival, 0) + this.getCpuAndIoColumn(item, index);
             rows += `<tr> ${htmlStr}</tr> `;
         })
 
@@ -135,11 +137,11 @@ class FormTable {
 
     loadProcessListFromTable() {
         const formData = new FormData(domEle.inputTableForm)
-        const arrivalIndexArr = [];
+        const pIndexArr = [];
         let i = 0;
 
         for (let item of formData.keys()) {
-            if (item.includes('arrival')) arrivalIndexArr.push(i);
+            if (item.includes('process-name')) pIndexArr.push(i);
             i++;
         }
         const entries = [];
@@ -147,17 +149,18 @@ class FormTable {
             entries.push(item);
         }
         //
-        let step = arrivalIndexArr[1] - arrivalIndexArr[0];
-        let processes = arrivalIndexArr.map((val, index) => {
+        let step = pIndexArr[1] - pIndexArr[0];
+        let processes = pIndexArr.map((val, index) => {
             let data = entries.slice(val, val + step);
-            let arrival = (data.length > 0) ? data[0][1] : 0;
+            let name = data[0][1];
+            let arrival = data[1][1];
             let cpus = [];
             let ios = [];
-            data.slice(1).forEach(item => {
+            data.slice(2).forEach(item => {
                 if (item[0].indexOf('cpu') > -1) cpus.push(item[1]);
                 else ios.push(item[1]);
             })
-            return new Process(`p${index + 1}`, arrival, cpus, ios);
+            return new Process(name, arrival, cpus, ios);
         })
         this.pList.list = processes;
     }
@@ -606,6 +609,7 @@ function Main() {
             else {
                 // show error message
                 domEle.errorMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
+                this.formTable.render(this.processList);
             }
         })
 
