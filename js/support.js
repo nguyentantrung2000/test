@@ -307,7 +307,7 @@ class ResultTable {
         }
         let cpuLevelHtml = this.getCpuLevelHtml(pList, cpuBox, pColor);
         let ioLevelHtml = this.getIoLevelHtml(pList, ioBox, pColor);
-        let readyQueueHtml = this.getReadyQueueHtml(pList, readyQueue);
+        let readyQueueHtml = this.getReadyQueueHtml(pList, readyQueue, pColor);
         const tBodyHtml = `${cpuLevelHtml}${ioLevelHtml}${readyQueueHtml}`
         return tBodyHtml;
     }
@@ -325,13 +325,13 @@ class ResultTable {
                 trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">CPU</th>
-                    <th class="process-name">${p.name}</th>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             } else {
                 trHtml = `
                 <tr>
-                    <th class="process-name">${p.name}</th>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             }
@@ -353,13 +353,13 @@ class ResultTable {
                 trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">IO</th>
-                    <th class="process-name">${p.name}</th>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             } else {
                 trHtml = `
                 <tr>
-                    <th class="process-name">${p.name}</th>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
             }
@@ -411,13 +411,13 @@ class ResultTable {
         return `${pos}-dashes-border`;
     }
 
-    getReadyQueueHtml(pList, readyQueue) {
+    getReadyQueueHtml(pList, readyQueue, pColor) {
         let trHtml = '';
         let tdArr = readyQueue.map((subQueue, subIndex) => {
             let queueTdHtml = '';
             for (let i = 0; i < pList.list.length; i++) {
                 const value = subQueue[i] || '';
-                queueTdHtml += `<tr><td >${value}</td></tr>`;
+                queueTdHtml += `<tr><td class="">${value}</td></tr>`;
             }
             let queueTrHtml = `<table>${queueTdHtml}</table>`;
             const htmlClass = this.getHtmlHighlightClassIfPassCondition(subIndex)
