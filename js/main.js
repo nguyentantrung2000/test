@@ -247,6 +247,8 @@ class Algorithm {
                 this.ioRemainingObj[key]--;
             }
         }
+
+        this.tempQueue = this.tempQueue.sort((a, b) => a[0].localeCompare(b[0]));
     }
 
     solveReadyQueue(time) {

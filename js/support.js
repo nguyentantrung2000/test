@@ -451,7 +451,7 @@ class ResultTable {
                 if (queueProcesses) {
                     const pName = queueProcesses[0];
                     const pCpu = queueProcesses[1];
-                    value = `<span title="${pName}: ${pCpu}">${pName}</span>`;
+                    value = `<div title="${pName} request cpu time: ${pCpu} ">${pName}<span class="process-cpu">${pCpu}</span></div>`;
                 }
 
                 queueTdHtml += `<tr><td class="">${value}</td></tr>`;

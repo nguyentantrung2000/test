@@ -434,3 +434,9 @@ input[type="radio"]:checked+label {
 .td-hover{
     background-color: #ffec8b;
 }
+.process-cpu{
+    font-size: 10px;
+    vertical-align: text-top;
+    font-weight: bold;
+    color: dodgerblue;
+}
