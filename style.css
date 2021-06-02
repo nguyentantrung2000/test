@@ -13,8 +13,8 @@
     --green: #92D050;
     --light-grey: #dddddd;
     --grey: #C6C6C6;
-    --highlight: dodgerblue;
-    --divider-color: rgb(252, 216, 150);
+    --highlight: #ffec8b;
+    --highlightRgb: rgba(255, 236, 139, .4);
     /* border */
     --empty-border: 2px dashed var(--black);
 }
@@ -66,7 +66,24 @@ body {
 /* border right */
 
 .border-solid-right-highlight {
+    /*
     border-right: 2px solid var(--highlight);
+    */
+    background-color: var(--highlight);
+}
+
+.highlight-column{
+    position: relative;
+}
+
+.highlight-box{
+    position: absolute;
+    top:0;
+    bottom: 0;
+    right: 0;
+    left:0;
+    z-index: 100;
+    background-color: var(--highlightRgb);
 }
 
 /* border bottom */
@@ -432,11 +449,11 @@ input[type="radio"]:checked+label {
 }
 
 .td-hover{
-    background-color: #ffec8b;
+    background-color: var(--highlight);
 }
 .process-cpu{
     font-size: 10px;
     vertical-align: text-top;
     font-weight: bold;
-    color: dodgerblue;
+    
 }

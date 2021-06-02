@@ -169,8 +169,8 @@ class FormTable {
 }
 
 class ResultBox {
-    static renderingMode = Data.renderResultMode.playing
-    static renderingGapTime = 200;
+    static renderingMode = Data.renderResultMode.immediate
+    static renderingGapTime = 500;
 
     algorithmName = null;
     timelineLength = 0;
@@ -266,7 +266,7 @@ class ResultBox {
     scrollToCurrentRunningCell() {
         const runningCell = document.querySelector('table#result-table tbody tr:first-child td:last-child');
         if (runningCell) {
-            const halfClientBoxWidth = domEle.resultTableArea.clientWidth / 2;
+            const halfClientBoxWidth = domEle.resultTableArea.clientWidth /1;
             const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
             if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultTableArea, leftOffset)
         }
@@ -296,6 +296,15 @@ class ResultTable {
         this.maxTime = maxTime;
         this.timelineLength = timelineLength;
         domEle.resultTableArea.innerHTML = this.getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime);
+
+        // highlight
+        if (maxTime < timelineLength)
+            domEle.resultTableTimeColumnsAtTime(maxTime - 1).forEach(cell => {
+                cell.classList.add('highlight-column');
+                const cellHtml = '<div class="highlight-box"></div>' + cell.innerHTML;
+                cell.innerHTML = cellHtml;
+            })
+
     }
 
     getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime = -1) {
@@ -402,6 +411,7 @@ class ResultTable {
     drawTableCell(level, isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
         let content = (showLabel && isCurrent) ? rowP.name : '';
         let htmlClass = this.getTableCellHtmlClasses(level, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], this.isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
+        //let highlightBox = (this.isHighlightCell(time)) ? '<div class="highlight-box"></div>' : '';
         return `<td class="${htmlClass}" time="${time}">${content}</td> `;
     }
 
@@ -414,13 +424,17 @@ class ResultTable {
             if (isArrival) htmlClass += ` border-dashes-left-${color}`;
             if (isWaitingForCpu) htmlClass += ` border-dashes-bottom-${color}`;
         }
-        htmlClass += this.getHtmlHighlightClassIfPassCondition(time);
+        //htmlClass += this.getHtmlHighlightClassIfPassCondition(time);
         return htmlClass;
     }
 
     getHtmlHighlightClassIfPassCondition(time) {
-        const htmlClass = (time == this.maxTime - 1 && time < this.timelineLength - 1) ? ' border-solid-right-highlight' : '';
+        const htmlClass = (this.isHighlightCell(time)) ? ' highlight-column' : '';
         return htmlClass;
+    }
+
+    isHighlightCell(time) {
+        return (time == this.maxTime - 1 && time < this.timelineLength - 1);
     }
 
     isWaitingForCpu(time, cpuRequestHistories) {
@@ -451,7 +465,7 @@ class ResultTable {
                 if (queueProcesses) {
                     const pName = queueProcesses[0];
                     const pCpu = queueProcesses[1];
-                    value = `<div title="${pName} request cpu time: ${pCpu} ">${pName}<span class="process-cpu">${pCpu}</span></div>`;
+                    value = `<div>${pName}<span class="process-cpu">${pCpu}</span></div>`;
                 }
 
                 queueTdHtml += `<tr><td class="">${value}</td></tr>`;
