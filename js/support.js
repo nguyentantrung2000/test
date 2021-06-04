@@ -224,9 +224,7 @@ class ResultBox {
 
         // display result box
         domEle.resultBox.style.display = 'block';
-        setTimeout(() => {
-            Helper.scrollToBottom();
-        }, ResultBox.renderingGapTime);
+        Helper.scrollToBottom();
     }
 
     renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
@@ -266,7 +264,7 @@ class ResultBox {
     scrollToCurrentRunningCell() {
         const runningCell = document.querySelector('table#result-table tbody tr:first-child td:last-child');
         if (runningCell) {
-            const halfClientBoxWidth = domEle.resultTableArea.clientWidth /1;
+            const halfClientBoxWidth = domEle.resultTableArea.clientWidth / 1;
             const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
             if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultTableArea, leftOffset)
         }
