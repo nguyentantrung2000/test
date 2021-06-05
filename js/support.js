@@ -170,7 +170,7 @@ class FormTable {
 
 class ResultBox {
     static renderingMode = Data.renderResultMode.immediate
-    static renderingGapTime = 500;
+    static renderingGapTime = 400;
 
     algorithmName = null;
     timelineLength = 0;

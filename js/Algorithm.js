@@ -1,5 +1,4 @@
 class Algorithm {
-
     maxCpuVal = 999999;
     maxTime = 1000;
 
@@ -21,7 +20,7 @@ class Algorithm {
     // array of time
     timeline = [];
 
-    // initiate boxes
+    // boxes
     cpuBox = [];
     ioBox = [];
     readyQueue = [];
@@ -31,12 +30,11 @@ class Algorithm {
     cpuRemainingTime = -1;
     quantumCounter = -1;
 
-
     constructor(pList, algorithmName, quantum = 2) {
         this.pList = pList;
         this.currentPList = this.pList.clone();
 
-        // array of time
+        // array of time || ex: [0, 1, 2, 3 ... 1000]
         this.timeline = this.getTimeline()
 
         // initiate boxes
@@ -182,48 +180,21 @@ class Algorithm {
         } else grantCpuForTopProcess();
     }
 
-    isGrantIo() {
-        return (this.ioRemainingObj[this.currentP?.name] == -1 && this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
-    }
-    // 
-
     checkSpecialConditionOfAlgorithm(readyQueueAtTime) {
         let roundRobin = (this.algorithmName != 'rr' || this.quantumCounter > 0);
-        let minCpuProcess = this.getMinCpuProcessInReadyQueue(readyQueueAtTime, this.currentPList);
-        let srtf = (this.algorithmName != 'srtf' || this.cpuRemainingTime <= minCpuProcess?.cpus[0]);
+        let srtf = true;
+        if (this.algorithmName == 'srtf') {
+            let minCpuProcess = this.getMinCpuProcessInReadyQueue(readyQueueAtTime, this.currentPList);
+            srtf = (this.cpuRemainingTime <= minCpuProcess?.cpus[0]);
+        }
         return (roundRobin && srtf);
     }
 
-
-    getMinCpuProcessInReadyQueue(readyQueueAtTime) {
-        let minProcess = null;
-        let minCpuVal = this.maxCpuVal;
-        readyQueueAtTime.forEach((p, index) => {
-            let process = this.currentPList.getProcessByName(p[0]);
-            if (process.cpus[0] < minCpuVal) {
-                minProcess = process;
-                minCpuVal = process.cpus[0];
-            }
-        })
-        return minProcess;
-
+    // SOLVE IO BOX
+    isGrantIo() {
+        return (this.ioRemainingObj[this.currentP?.name] == -1 && this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
     }
 
-    getMinCpuProcessIndexInReadyQueue(readyQueueAtTime,) {
-        let minCpuVal = this.maxCpuVal;
-        let minCpuProcessIndex = 0;
-        readyQueueAtTime.forEach((p, index) => {
-            let process = this.currentPList.getProcessByName(p[0]);
-            if (process.cpus[0] < minCpuVal) {
-                minCpuVal = process.cpus[0];
-                minCpuProcessIndex = index;
-            }
-        })
-        return minCpuProcessIndex;
-
-    }
-
-    // ALGORITHM FUNCTIONS
     grantIo() {
         this.ioRemainingObj[this.currentP.name] = this.currentP.ios.shift() - 1;
     }
@@ -253,6 +224,7 @@ class Algorithm {
         this.tempQueue = this.tempQueue.sort((a, b) => a[0].localeCompare(b[0]));
     }
 
+    // SOLVE READY QUEUE
     solveReadyQueue(time) {
         const arrivalPNames = this.currentPList.getProcessNamesByArrival(time);
 
@@ -272,6 +244,35 @@ class Algorithm {
         }
     }
 
+    getMinCpuProcessInReadyQueue(readyQueueAtTime) {
+        let minProcess = null;
+        let minCpuVal = this.maxCpuVal;
+        readyQueueAtTime.forEach((p, index) => {
+            let process = this.currentPList.getProcessByName(p[0]);
+            if (process.cpus[0] < minCpuVal) {
+                minProcess = process;
+                minCpuVal = process.cpus[0];
+            }
+        })
+        return minProcess;
+
+    }
+
+    getMinCpuProcessIndexInReadyQueue(readyQueueAtTime,) {
+        let minCpuVal = this.maxCpuVal;
+        let minCpuProcessIndex = 0;
+        readyQueueAtTime.forEach((p, index) => {
+            let process = this.currentPList.getProcessByName(p[0]);
+            if (process.cpus[0] < minCpuVal) {
+                minCpuVal = process.cpus[0];
+                minCpuProcessIndex = index;
+            }
+        })
+        return minCpuProcessIndex;
+
+    }
+
+    // OTHER FUNCTIONS
     initiateIoRemainingObj() {
         const result = {};
         this.currentPList.list.forEach(p => {
@@ -291,14 +292,12 @@ class Algorithm {
         return counter;
     }
 
-    // SUPPORT FUNCTIONS
     getTimeline() {
         let timeline = [];
         for (let i = 0; i < this.maxTime; i++) timeline.push(i);
         return timeline;
     }
 
-    // LOG
     logDataAtTimePoint(time) {
         console.log(`\n${time} ===========`);
         console.log('CPU\t\t', this.cpuBox[time]);

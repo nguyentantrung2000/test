@@ -100,18 +100,17 @@ function ProcessList(list) {
                 }
             }
 
-            // 4. unique arrival
-            //const arrivalCountObj = {};
-            //const arrivals = this.list.map(p => p.arrival);
-            //arrivals.forEach(item => {
-            //if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
-            //else arrivalCountObj[item]++;
-            //})
-            //for (let key in arrivalCountObj)
-            //if (arrivalCountObj[key] > 1) {
-            //err = `Arrival of process must unique`;
-            //break;
-            //}
+            // 4. unique process name
+            const pNameCount = {};
+            this.list.forEach(p => {
+                if (!pNameCount[p.name]) pNameCount[p.name] = 1;
+                else pNameCount[p.name]++;
+            })
+            for (let key in pNameCount)
+                if (pNameCount[key] > 1) {
+                    err = `Process's name must unique`;
+                    break;
+                }
         }
         return err;
     }

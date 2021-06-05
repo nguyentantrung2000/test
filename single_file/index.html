@@ -26,13 +26,14 @@
             --green: #92D050;
             --light-grey: #dddddd;
             --grey: #C6C6C6;
-            --highlight: dodgerblue;
+            --highlight: #ffec8b;
+            --highlightRgb: rgba(255, 236, 139, .4);
             /* border */
             --empty-border: 2px dashed var(--black);
         }
 
         html,
-        .box {
+        .table-area {
             scroll-behavior: smooth;
         }
 
@@ -43,19 +44,19 @@
         /* background color */
 
         .bg-red {
-            background-color: var(--red);
+            background-color: var(--red) !important;
         }
 
         .bg-orange {
-            background-color: var(--orange);
+            background-color: var(--orange) !important;
         }
 
         .bg-green {
-            background-color: var(--green);
+            background-color: var(--green) !important;
         }
 
         .bg-blue {
-            background-color: var(--blue);
+            background-color: var(--blue) !important;
         }
 
         /* text color */
@@ -64,10 +65,43 @@
             color: var(--white);
         }
 
+        .text-red {
+            color: var(--red);
+        }
+
+        .text-orange {
+            color: var(--orange);
+        }
+
+        .text-green {
+            color: var(--green);
+        }
+
+        .text-blue {
+            color: var(--blue);
+        }
+
         /* border right */
 
         .border-solid-right-highlight {
-            border-right: 2px solid var(--highlight);
+            /*
+    border-right: 2px solid var(--highlight);
+    */
+            background-color: var(--highlight);
+        }
+
+        .highlight-column {
+            position: relative;
+        }
+
+        .highlight-box {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            background-color: var(--highlightRgb);
         }
 
         /* border bottom */
@@ -160,12 +194,19 @@
         }
 
         .box {
-            overflow-x: auto;
             background-color: var(--accent-color);
             border: 1px solid var(--black);
             margin: 50px 200px;
-            margin-bottom: 0;
             padding: 50px;
+        }
+
+        .table-area {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        #form-table-area {
+            margin-top: 0px;
         }
 
         @media only screen and (max-width: 1300px) {
@@ -174,10 +215,6 @@
                 margin: 50px 50px;
                 padding: 50px 50px;
             }
-        }
-
-        #content-wrapper {
-            padding-bottom: 50px;
         }
 
         #content-wrapper .row {
@@ -194,6 +231,22 @@
             display: block;
         }
 
+        table#result-table>thead th {
+            min-width: 25px;
+            /*
+    min-width: 75px;
+    */
+        }
+
+        table#result-table table {
+            width: 100%;
+        }
+
+        table#result-table td,
+        table#result-table th {
+            text-align: center;
+        }
+
         table#result-table {
             border-spacing: 0px;
             width: 100%;
@@ -207,16 +260,8 @@
             height: 30px;
         }
 
-        table#result-table thead th {
-            text-align: left;
-        }
-
         table#result-table .process-label {
             color: var(--white);
-        }
-
-        table#result-table tbody td:nth-child(odd) {
-            /*background-color: dodgerblue;*/
         }
 
         table#result-table th.level-thead,
@@ -224,7 +269,20 @@
             width: 150px;
         }
 
-        table#result-table td {}
+        /* COLUMN BACKGROUND
+
+table#result-table>tbody>tr:not(.level-row)>td:nth-child(even) {
+    background-color: var(--divider-color);
+}
+
+table#result-table>thead>tr>th:first-child {
+    background-color: transparent;
+}
+
+table#result-table>tbody>tr.level-row>td:nth-child(odd) {
+    background-color: var(--divider-color);
+}
+*/
 
         /* data table */
 
@@ -238,9 +296,9 @@
             border-collapse: collapse;
         }
 
-        td.process-name,
-        th {
+        th.process-name {
             padding: 5px;
+            text-align: left !important;
         }
 
         .form-table td,
@@ -261,6 +319,10 @@
         }
 
         /* statistic table */
+
+        table#statistic-table {
+            float: right;
+        }
 
         table#statistic-table {
             width: 300px;
@@ -326,7 +388,7 @@
 
             .box {
                 padding: 10px;
-                margin: 0px;
+                margin: 10px 0px;
             }
         }
 
@@ -411,8 +473,20 @@
             color: dodgerblue;
             font-weight: bold;
         }
+
+        .td-hover {
+            background-color: var(--highlight);
+        }
+
+        .process-cpu {
+            font-size: 10px;
+            vertical-align: text-top;
+            font-weight: bold;
+
+        }
     </style>
     <div class="wrapper">
+
         <!-- APP BAR -->
         <div id="app-bar">
             <h2 id="title">CPU scheduling with separate I/O</h2>
@@ -420,8 +494,13 @@
 
         <!-- MAIN CONTENT -->
         <div id="content-wrapper" class="container">
+
+            <!-- INPUT BOX -->
             <div class="box">
+
+                <!-- INPUT FORM -->
                 <form id="input-table-form">
+
                     <!-- ERROR MESSAGE -->
                     <p id="error-message-area"></p>
 
@@ -435,6 +514,7 @@
 
                     <!-- OPTION BAR -->
                     <div class="option-bar">
+
                         <!-- ALGORITHM -->
                         <div>
                             <span>Algorithm</span>
@@ -446,7 +526,7 @@
                             </select>
                         </div>
 
-                        <!-- OPTIONAL -->
+                        <!-- QUANTUM -->
                         <div id="quantum-container">
                             <span>Quantum</span>
                             <input id="quantum-input" type="number" min="1" value="2">
@@ -454,237 +534,52 @@
                     </div>
 
                     <!-- TABLE -->
-                    <div id="form-table-area">
+                    <div id="form-table-area" class="table-area">
                         <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                     </div>
                 </form>
+
+                <!-- OPTION FORM -->
                 <form id="option-form">
+
+                    <!-- RENDERING MODE -->
                     <div id="rendering-mode-container">
                         <span>Rendering mode</span>
                         <div class="radio-button-container">
                             <div>
-                                <input type="radio" name="rendering-mode" value="immediate" id="immediate">
-                                <label for="immediate">Immediate</label><br>
-                            </div>
-                            <div>
                                 <input type="radio" name="rendering-mode" value="playing" id="playing">
                                 <label for="playing">Playing</label><br>
+                            </div>
+                            <div>
+                                <input type="radio" name="rendering-mode" value="immediate" id="immediate">
+                                <label for="immediate">Immediate</label><br>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
+
+            <!-- RESULT BOX -->
             <div id="result-box" class="box">
+
+                <!-- HEADING -->
                 <h2 id="algorithm-heading"></h2>
 
-                <div id="result-table-area">
+                <!-- RESULT TABLE AREA -->
+                <div id="result-table-area" class="table-area">
                     <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                 </div>
 
-                <div id="statistic-table-area">
+                <!-- STATISTIC TABLE AREA -->
+                <div id="statistic-table-area" class="table-area">
+
                     <!-- TABLE WILL BE RENDERED BY JAVASCRIPT-->
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        // DEFINE OBJECTS
-        function ProcessList(list) {
-            this.list = list;
 
-            this.add = function (process) {
-                this.list.push(process);
-            }
-
-            this.addNewProcess = function () {
-                let process1 = this.list[0];
-                let cpus = process1.cpus.map(item => 0);
-                let ios = cpus.slice(0, cpus.length - 1);
-                let process = new Process(`p${this.list.length + 1}`, this.getLastArrivalTime() + 1, cpus, ios);
-                this.add(process);
-            }
-
-            this.addNewRequest = function () {
-                this.list.forEach(item => {
-                    item.addNewRequest();
-                })
-            }
-
-            this.clone = function () {
-                let plainObject = JSON.parse(JSON.stringify(this));
-                let processes = plainObject.list.map(p => {
-                    return new Process(p.name, p.arrival, p.cpus, p.ios, p.cpuRequests);
-                })
-                let processList = new ProcessList(processes);
-                return processList;
-            }
-
-            this.getProcessByArrival = function (time) {
-                return this.list.filter(item => {
-                    return item.arrival == time;
-                })
-            }
-
-            this.getProcessByName = function (name) {
-                return this.list.filter(item => item.name == name)[0];
-            }
-
-            this.calculationTimes = function (cpuBox) {
-                this.list.forEach(process => process.calculateTimes(cpuBox))
-                this.calculateAverageTimes();
-            }
-
-            this.calculateAverageTimes = function () {
-                let totalProcess = this.list.length;
-                let totalResponseTime = 0;
-                let totalWaitingTime = 0;
-                let totalTurnAroundTime = 0;
-                this.list.forEach(p => {
-                    totalResponseTime += p.responseTime;
-                    totalWaitingTime += p.waitingTime;
-                    totalTurnAroundTime += p.turnAroundTime;
-                })
-                this.avgResponseTime = totalResponseTime / totalProcess;
-                this.avgWaitingTime = totalWaitingTime / totalProcess;
-                this.avgTurnAroundTime = totalTurnAroundTime / totalProcess;
-            }
-
-            this.getError = function () {
-                let err = null;
-                for (let p of this.list) {
-                    const lastNonZeroCpuIndex = this.getLastNonZeroValIndex(p.cpus);
-                    const lastNonZeroIoIndex = this.getLastNonZeroValIndex(p.ios);
-
-                    // 1. cpus[0], cpus[1], ios[0] > 0
-                    if (lastNonZeroCpuIndex < 1) {
-                        err = `Process "${p.name}" values required`;
-                        break;
-                    }
-
-                    // 2. end cpu
-                    if (lastNonZeroCpuIndex <= lastNonZeroIoIndex) {
-                        err = `Process "${p.name}" must end with cpu`;
-                        break;
-                    }
-
-                    // 3. no 0 between
-                    if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1 || this.isZeroValueInTheMiddle(p.cpus, p.ios, lastNonZeroIoIndex + 1)) {
-                        err = `Process "${p.name}" must not have empty value in the middle`;
-                        break;
-                    }
-
-                    // 4. unique arrival
-                    const arrivalCountObj = {};
-                    const arrivals = this.list.map(p => p.arrival);
-                    arrivals.forEach(item => {
-                        if (!arrivalCountObj[item]) arrivalCountObj[item] = 1;
-                        else arrivalCountObj[item]++;
-                    })
-                    for (let key in arrivalCountObj)
-                        if (arrivalCountObj[key] > 1) {
-                            err = `Arrival of process must unique`;
-                            break;
-                        }
-                }
-                return err;
-            }
-
-            this.isZeroValueInTheMiddle = function (arr1, arr2, n) {
-                for (let i = 0; i < n; i++) {
-                    if (arr1[i] == 0 || arr2[i] == 0) return true;
-                }
-                return false;
-            }
-
-            this.getLastNonZeroValIndex = function (arr) {
-                for (let i = arr.length - 1; i >= 0; i--) {
-                    if (arr[i] != 0) return i;
-                }
-                return -1;
-            }
-
-            this.getLastArrivalTime = function () {
-                let max = 0;
-                this.list.forEach(p => {
-                    if (p.arrival > max)
-                        max = p.arrival;
-                })
-                return max;
-            }
-        }
-
-        function Process(name, arrival, cpus, ios, cpuRequests = null) {
-            this.name = name;
-            this.arrival = Number.parseInt(arrival);
-            this.cpuRequests = cpuRequests || [arrival];
-
-            this.cpus = cpus.map(val => {
-                let n = Number.parseInt(val);
-                return Number.isNaN(n) ? 0 : n;
-            });
-            this.ios = ios.map(val => {
-                let n = Number.parseInt(val);
-                return Number.isNaN(n) ? 0 : n;
-            });
-
-            // ADD REQUEST
-            this.addNewRequest = function () {
-                this.cpus.push(0);
-                this.ios.push(0);
-            }
-
-            // CALCULATE TIMES
-            this.calculateTimes = function (cpuBox) {
-                this.cpuRequestHistories = this.getCpuRequestHistories(cpuBox);
-                this.waitingTime = this.getProcessWaitingTime();
-                this.responseTime = this.cpuRequestHistories[0][1] - this.cpuRequestHistories[0][0];
-                this.turnAroundTime = this.getProcessTurnAroundTime(cpuBox);
-            }
-
-            this.getCpuRequestHistories = function (cpuBox) {
-                return this.cpuRequests.map(request => {
-                    const grantedTime = this.getFirstGrantedCpuTimeOfProcess(cpuBox, request);
-                    return [request, grantedTime];
-                })
-            }
-
-            this.getProcessWaitingTime = function () {
-                return this.cpuRequestHistories.reduce((prev, current) => {
-                    return prev + (current[1] - current[0]);
-                }, 0);
-            }
-
-            this.getProcessTurnAroundTime = function (cpuBox) {
-                const endCpuTime = this.getEndCpuTimeOfProcess(cpuBox);
-                const firstGranted = this.getFirstGrantedCpuTimeOfProcess(cpuBox);
-                return endCpuTime - firstGranted + this.responseTime + 1;
-            }
-
-            this.getFirstGrantedCpuTimeOfProcess = function (cpuBox, start = 0) {
-                let index = -1;
-                for (let i = start; i < cpuBox.length; i++) {
-                    if (cpuBox[i] == this.name) {
-                        index = i
-                        break;
-                    }
-                }
-                return index;
-            }
-
-            this.getEndCpuTimeOfProcess = function (cpuBox) {
-                let index = -1;
-                for (let key = cpuBox.length - 1; key >= 0; key--) {
-                    if (cpuBox[key] == this.name) {
-                        index = key
-                        break;
-                    }
-                }
-                return index;
-            }
-
-        }
-
-    </script>
+    <!-- ALGORITHM -->
     <script>
         class Algorithm {
             maxCpuVal = 999999;
@@ -708,7 +603,7 @@
             // array of time
             timeline = [];
 
-            // initiate boxes
+            // boxes
             cpuBox = [];
             ioBox = [];
             readyQueue = [];
@@ -718,12 +613,11 @@
             cpuRemainingTime = -1;
             quantumCounter = -1;
 
-
             constructor(pList, algorithmName, quantum = 2) {
                 this.pList = pList;
                 this.currentPList = this.pList.clone();
 
-                // array of time
+                // array of time || ex: [0, 1, 2, 3 ... 1000]
                 this.timeline = this.getTimeline()
 
                 // initiate boxes
@@ -798,8 +692,9 @@
 
                 if (this.readyQueue[time][0]) {
                     // grant cpu for the top process of ready queue
-                    const pName = this.readyQueue[time].shift();
-                    this.currentP = this.currentPList.getProcessByName(pName);
+                    const p = this.readyQueue[time].shift();
+                    //['p1', 1]
+                    this.currentP = this.currentPList.getProcessByName(p[0]);
                     this.cpuBox[time] = this.currentP.name;
                     this.cpuRemainingTime = this.currentP.cpus.shift();
                 }
@@ -811,8 +706,8 @@
 
                 if (this.readyQueue[time][0]) {
                     // grant cpu for min cpu process
-                    const [pName] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
-                    this.currentP = this.currentPList.getProcessByName(pName);
+                    const [p] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
+                    this.currentP = this.currentPList.getProcessByName(p[0]);
                     this.cpuBox[time] = this.currentP.name;
                     this.cpuRemainingTime = this.currentP.cpus.shift();
                 }
@@ -825,8 +720,8 @@
                 const grantCpu = () => {
                     if (this.readyQueue[time][0]) {
                         // find min cpu process name
-                        const [pName] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
-                        this.currentP = this.currentPList.getProcessByName(pName);
+                        const [p] = this.readyQueue[time].splice(this.getMinCpuProcessIndexInReadyQueue(this.readyQueue[time]), 1);
+                        this.currentP = this.currentPList.getProcessByName(p[0]);
                         this.cpuBox[time] = this.currentP.name;
                         this.cpuRemainingTime = this.currentP.cpus.shift();
                     }
@@ -835,7 +730,7 @@
                 if (this.cpuRemainingTime > 0) {
                     const rest = this.cpuRemainingTime;
                     this.currentP.cpus.unshift(rest);
-                    this.readyQueue[time].push(this.currentP.name);
+                    this.readyQueue[time].push([this.currentP.name, rest]);
                     grantCpu();
                 } else {
                     grantCpu();
@@ -851,8 +746,8 @@
                 // grant cpu for the top process of ready queue
                 const grantCpuForTopProcess = () => {
                     if (this.readyQueue[time][0]) {
-                        const pName = this.readyQueue[time].shift();
-                        this.currentP = this.currentPList.getProcessByName(pName);
+                        const p = this.readyQueue[time].shift();
+                        this.currentP = this.currentPList.getProcessByName(p[0]);
                         this.cpuBox[time] = this.currentP.name;
                         this.cpuRemainingTime = this.currentP.cpus.shift();
                         this.quantumCounter = this.quantum;
@@ -863,53 +758,26 @@
                     const rest = this.cpuRemainingTime;
                     this.currentP.cpus.unshift(rest);
                     this.currentP.cpuRequests.push(time);
-                    this.readyQueue[time].push(this.currentP.name);
+                    this.readyQueue[time].push([this.currentP.name, rest]);
                     grantCpuForTopProcess();
                 } else grantCpuForTopProcess();
             }
 
-            isGrantIo() {
-                return (this.ioRemainingObj[this.currentP?.name] == -1 && this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
-            }
-            // 
-
             checkSpecialConditionOfAlgorithm(readyQueueAtTime) {
                 let roundRobin = (this.algorithmName != 'rr' || this.quantumCounter > 0);
-                let minCpuProcess = this.getMinCpuProcessInReadyQueue(readyQueueAtTime, this.currentPList);
-                let srtf = (this.algorithmName != 'srtf' || this.cpuRemainingTime <= minCpuProcess?.cpus[0]);
+                let srtf = true;
+                if (this.algorithmName == 'srtf') {
+                    let minCpuProcess = this.getMinCpuProcessInReadyQueue(readyQueueAtTime, this.currentPList);
+                    srtf = (this.cpuRemainingTime <= minCpuProcess?.cpus[0]);
+                }
                 return (roundRobin && srtf);
             }
 
-
-            getMinCpuProcessInReadyQueue(readyQueueAtTime) {
-                let minProcess = null;
-                let minCpuVal = this.maxCpuVal;
-                readyQueueAtTime.forEach((pName, index) => {
-                    let process = this.currentPList.getProcessByName(pName);
-                    if (process.cpus[0] < minCpuVal) {
-                        minProcess = process;
-                        minCpuVal = process.cpus[0];
-                    }
-                })
-                return minProcess;
-
+            // SOLVE IO BOX
+            isGrantIo() {
+                return (this.ioRemainingObj[this.currentP?.name] == -1 && this.cpuRemainingTime == 0 && this.currentP?.ios?.length > 0)
             }
 
-            getMinCpuProcessIndexInReadyQueue(readyQueueAtTime,) {
-                let minCpuVal = this.maxCpuVal;
-                let minCpuProcessIndex = 0;
-                readyQueueAtTime.forEach((pName, index) => {
-                    let process = this.currentPList.getProcessByName(pName);
-                    if (process.cpus[0] < minCpuVal) {
-                        minCpuVal = process.cpus[0];
-                        minCpuProcessIndex = index;
-                    }
-                })
-                return minCpuProcessIndex;
-
-            }
-
-            // ALGORITHM FUNCTIONS
             grantIo() {
                 this.ioRemainingObj[this.currentP.name] = this.currentP.ios.shift() - 1;
             }
@@ -928,23 +796,27 @@
                             tempP.cpuRequests.push(time + 1);
 
                             // "tempQueue" will be added to the end of ready queue at the next loop 
-                            this.tempQueue.push(key);
+                            this.tempQueue.push([tempP.name, tempP.cpus[0]]);
                         }
 
                         // decrease io counter of process
                         this.ioRemainingObj[key]--;
                     }
                 }
+
+                this.tempQueue = this.tempQueue.sort((a, b) => a[0].localeCompare(b[0]));
             }
 
+            // SOLVE READY QUEUE
             solveReadyQueue(time) {
-                const arrivalProcess = this.currentPList.getProcessByArrival(time)[0];
+                const arrivalPNames = this.currentPList.getProcessNamesByArrival(time);
 
                 // clone previous ready queue 
                 this.readyQueue[time] = [...this.readyQueue[time - 1] || [],];
 
                 // add arrival process at the end of ready queue
-                if (arrivalProcess) this.readyQueue[time].push(arrivalProcess.name);
+                if (arrivalPNames.length > 0) this.readyQueue[time] = [...this.readyQueue[time], ...arrivalPNames];
+
 
                 if (this.tempQueue.length > 0) {
                     // add processes back from io at the end of ready queue
@@ -955,6 +827,35 @@
                 }
             }
 
+            getMinCpuProcessInReadyQueue(readyQueueAtTime) {
+                let minProcess = null;
+                let minCpuVal = this.maxCpuVal;
+                readyQueueAtTime.forEach((p, index) => {
+                    let process = this.currentPList.getProcessByName(p[0]);
+                    if (process.cpus[0] < minCpuVal) {
+                        minProcess = process;
+                        minCpuVal = process.cpus[0];
+                    }
+                })
+                return minProcess;
+
+            }
+
+            getMinCpuProcessIndexInReadyQueue(readyQueueAtTime,) {
+                let minCpuVal = this.maxCpuVal;
+                let minCpuProcessIndex = 0;
+                readyQueueAtTime.forEach((p, index) => {
+                    let process = this.currentPList.getProcessByName(p[0]);
+                    if (process.cpus[0] < minCpuVal) {
+                        minCpuVal = process.cpus[0];
+                        minCpuProcessIndex = index;
+                    }
+                })
+                return minCpuProcessIndex;
+
+            }
+
+            // OTHER FUNCTIONS
             initiateIoRemainingObj() {
                 const result = {};
                 this.currentPList.list.forEach(p => {
@@ -974,14 +875,12 @@
                 return counter;
             }
 
-            // SUPPORT FUNCTIONS
             getTimeline() {
                 let timeline = [];
                 for (let i = 0; i < this.maxTime; i++) timeline.push(i);
                 return timeline;
             }
 
-            // LOG
             logDataAtTimePoint(time) {
                 console.log(`\n${time} ===========`);
                 console.log('CPU\t\t', this.cpuBox[time]);
@@ -997,7 +896,226 @@
                 console.log('PROCESS LIST\t', this.currentPList);
             }
         }
+
     </script>
+
+    <!-- OBJECTS -->
+    <script>
+        // DEFINE OBJECTS
+        function ProcessList(list) {
+            this.list = list;
+
+            this.add = function (process) {
+                this.list.push(process);
+            }
+
+            this.addNewProcess = function () {
+                let process1 = this.list[0];
+                let cpus = process1.cpus.map(item => 0);
+                let ios = cpus.slice(0, cpus.length - 1);
+                let process = new Process(`p${this.list.length + 1}`, this.getLastArrivalTime() + 1, cpus, ios);
+                this.add(process);
+            }
+
+            this.addNewRequest = function () {
+                this.list.forEach(item => {
+                    item.addNewRequest();
+                })
+            }
+
+            this.clone = function () {
+                let plainObject = JSON.parse(JSON.stringify(this));
+                let processes = plainObject.list.map(p => {
+                    return new Process(p.name, p.arrival, p.cpus, p.ios, p.cpuRequests);
+                })
+                let processList = new ProcessList(processes);
+                return processList;
+            }
+
+            this.getProcessNamesByArrival = function (time) {
+                let processes = this.list.filter(item => {
+                    return item.arrival == time;
+                })
+
+                // sort processes by  process name
+                if (processes.length > 1) {
+                    processes = processes.sort((p1, p2) => {
+                        return (p1.name.localeCompare(p2.name));
+                    })
+                }
+                const pNames = processes.map(p => [p.name, p.cpus[0]]);
+                return pNames;
+            }
+
+            this.getProcessByName = function (name) {
+                return this.list.filter(item => item.name == name)[0];
+            }
+
+            this.calculationTimes = function (cpuBox) {
+                this.list.forEach(process => process.calculateTimes(cpuBox))
+                this.calculateAverageTimes();
+            }
+
+            this.calculateAverageTimes = function () {
+                let totalProcess = this.list.length;
+                let totalResponseTime = 0;
+                let totalWaitingTime = 0;
+                let totalTurnAroundTime = 0;
+                this.list.forEach(p => {
+                    totalResponseTime += p.responseTime;
+                    totalWaitingTime += p.waitingTime;
+                    totalTurnAroundTime += p.turnAroundTime;
+                })
+                this.avgResponseTime = totalResponseTime / totalProcess;
+                this.avgWaitingTime = totalWaitingTime / totalProcess;
+                this.avgTurnAroundTime = totalTurnAroundTime / totalProcess;
+            }
+
+            this.getError = function () {
+                let err = null;
+                for (let p of this.list) {
+                    const lastNonZeroCpuIndex = this.getLastNonZeroValIndex(p.cpus);
+                    const lastNonZeroIoIndex = this.getLastNonZeroValIndex(p.ios);
+
+                    // 1. cpus[0], cpus[1], ios[0] > 0
+                    if (lastNonZeroCpuIndex < 1) {
+                        err = `Process "${p.name}" values required`;
+                        break;
+                    }
+
+                    // 2. end cpu
+                    if (lastNonZeroCpuIndex <= lastNonZeroIoIndex) {
+                        err = `Process "${p.name}" must end with cpu`;
+                        break;
+                    }
+
+                    // 3. no 0 between
+                    if (lastNonZeroCpuIndex - lastNonZeroIoIndex > 1 || this.isZeroValueInTheMiddle(p.cpus, p.ios, lastNonZeroIoIndex + 1)) {
+                        err = `Process "${p.name}" must not have empty value in the middle`;
+                        break;
+                    }
+
+                    // 4. process name not empty
+                    for (let i = 0; i < this.list.length; i++) {
+                        if (this.list[i].name.trim() == '') {
+                            err = `Process name required`;
+                            break;
+                        }
+                    }
+
+                    // 4. unique process name
+                    const pNameCount = {};
+                    this.list.forEach(p => {
+                        if (!pNameCount[p.name]) pNameCount[p.name] = 1;
+                        else pNameCount[p.name]++;
+                    })
+                    for (let key in pNameCount)
+                        if (pNameCount[key] > 1) {
+                            err = `Process's name must unique`;
+                            break;
+                        }
+                }
+                return err;
+            }
+
+            this.isZeroValueInTheMiddle = function (arr1, arr2, n) {
+                for (let i = 0; i < n; i++) {
+                    if (arr1[i] == 0 || arr2[i] == 0) return true;
+                }
+                return false;
+            }
+
+            this.getLastNonZeroValIndex = function (arr) {
+                for (let i = arr.length - 1; i >= 0; i--) {
+                    if (arr[i] != 0) return i;
+                }
+                return -1;
+            }
+
+            this.getLastArrivalTime = function () {
+                let max = 0;
+                this.list.forEach(p => {
+                    if (p.arrival > max)
+                        max = p.arrival;
+                })
+                return max;
+            }
+        }
+
+        function Process(name, arrival, cpus, ios, cpuRequests = null) {
+            this.name = name.trim();
+            this.arrival = Number.parseInt(arrival);
+            this.cpuRequests = cpuRequests || [arrival];
+
+            this.cpus = cpus.map(val => {
+                let n = Number.parseInt(val);
+                return Number.isNaN(n) ? 0 : n;
+            });
+            this.ios = ios.map(val => {
+                let n = Number.parseInt(val);
+                return Number.isNaN(n) ? 0 : n;
+            });
+
+            // ADD REQUEST
+            this.addNewRequest = function () {
+                this.cpus.push(0);
+                this.ios.push(0);
+            }
+
+            // CALCULATE TIMES
+            this.calculateTimes = function (cpuBox) {
+                this.cpuRequestHistories = this.getCpuRequestHistories(cpuBox);
+                this.waitingTime = this.getProcessWaitingTime();
+                this.responseTime = this.cpuRequestHistories[0][1] - this.cpuRequestHistories[0][0];
+                this.turnAroundTime = this.getProcessTurnAroundTime(cpuBox);
+            }
+
+            this.getCpuRequestHistories = function (cpuBox) {
+                return this.cpuRequests.map(request => {
+                    const grantedTime = this.getFirstGrantedCpuTimeOfProcess(cpuBox, request);
+                    return [request, grantedTime];
+                })
+            }
+
+            this.getProcessWaitingTime = function () {
+                return this.cpuRequestHistories.reduce((prev, current) => {
+                    return prev + (current[1] - current[0]);
+                }, 0);
+            }
+
+            this.getProcessTurnAroundTime = function (cpuBox) {
+                const endCpuTime = this.getEndCpuTimeOfProcess(cpuBox);
+                const firstGranted = this.getFirstGrantedCpuTimeOfProcess(cpuBox);
+                return endCpuTime - firstGranted + this.responseTime + 1;
+            }
+
+            this.getFirstGrantedCpuTimeOfProcess = function (cpuBox, start = 0) {
+                let index = -1;
+                for (let i = start; i < cpuBox.length; i++) {
+                    if (cpuBox[i] == this.name) {
+                        index = i
+                        break;
+                    }
+                }
+                return index;
+            }
+
+            this.getEndCpuTimeOfProcess = function (cpuBox) {
+                let index = -1;
+                for (let key = cpuBox.length - 1; key >= 0; key--) {
+                    if (cpuBox[key] == this.name) {
+                        index = key
+                        break;
+                    }
+                }
+                return index;
+            }
+
+        }
+
+    </script>
+
+    <!-- SUPPORT -->
     <script>
         // HTML DOM ELM
         const domEle = {
@@ -1013,7 +1131,9 @@
             resultBox: document.querySelector('.box:last-child'),
 
             // table
-            formTableInputs: () => document.querySelectorAll('.table-input'),
+            formTableInputs: () => document.querySelectorAll('#form-table-area table tbody input'),
+            resultTableTimeColumns: () => document.querySelectorAll('table#result-table th[time], table#result-table td[time]'),
+            resultTableTimeColumnsAtTime: (time) => document.querySelectorAll(`table#result-table th[time="${time}"], table#result-table td[time="${time}"]`),
 
             // buttons
             addProcessBtn: document.getElementById('add-process-btn'),
@@ -1050,8 +1170,8 @@
 
                 const exerciseData = [
                     new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
-                    new Process('p2', 1, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
-                    new Process('p3', 2, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+                    new Process('p2', 0, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+                    new Process('p3', 0, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
                 ];
                 this.defaultProcessArr = exerciseData;
             }
@@ -1074,7 +1194,6 @@
                     })
                 })
             }
-
 
             getTableHtml() {
                 let tableHtml = `<table table class="form-table" > ${this.getFormTableTHeadHtml()} ${this.getFormTableTBodyHtml()}</table > `;
@@ -1099,7 +1218,6 @@
             </tr>
         </thead>`;
                 return tHead;
-
             }
 
             getFormTableTBodyHtml() {
@@ -1107,8 +1225,11 @@
                 this.pList.list.forEach((item, index) => {
                     let htmlStr = ` 
             <th scope="row">${index + 1}</th>
-            <td class="process-name">${item.name}</td>`;
-                    htmlStr += this.getNumberInputHtml(`arrival - ${index} `, item.arrival, 0) + this.getCpuAndIoColumn(item, index);
+            <td class="process-name">
+                <input type="text" minlength="1" required="required" maxlength="2" name="process-name" value="${item.name}" />
+                
+            </td>`;
+                    htmlStr += this.getNumberInputHtml(`arrival-${index}`, item.arrival, 0) + this.getCpuAndIoColumn(item, index);
                     rows += `<tr> ${htmlStr}</tr> `;
                 })
 
@@ -1137,11 +1258,11 @@
 
             loadProcessListFromTable() {
                 const formData = new FormData(domEle.inputTableForm)
-                const arrivalIndexArr = [];
+                const pIndexArr = [];
                 let i = 0;
 
                 for (let item of formData.keys()) {
-                    if (item.includes('arrival')) arrivalIndexArr.push(i);
+                    if (item.includes('process-name')) pIndexArr.push(i);
                     i++;
                 }
                 const entries = [];
@@ -1149,17 +1270,18 @@
                     entries.push(item);
                 }
                 //
-                let step = arrivalIndexArr[1] - arrivalIndexArr[0];
-                let processes = arrivalIndexArr.map((val, index) => {
+                let step = pIndexArr[1] - pIndexArr[0];
+                let processes = pIndexArr.map((val, index) => {
                     let data = entries.slice(val, val + step);
-                    let arrival = (data.length > 0) ? data[0][1] : 0;
+                    let name = data[0][1];
+                    let arrival = data[1][1];
                     let cpus = [];
                     let ios = [];
-                    data.slice(1).forEach(item => {
+                    data.slice(2).forEach(item => {
                         if (item[0].indexOf('cpu') > -1) cpus.push(item[1]);
                         else ios.push(item[1]);
                     })
-                    return new Process(`p${index + 1}`, arrival, cpus, ios);
+                    return new Process(name, arrival, cpus, ios);
                 })
                 this.pList.list = processes;
             }
@@ -1167,7 +1289,7 @@
 
         class ResultBox {
             static renderingMode = Data.renderResultMode.immediate
-            static renderingGapTime = 200;
+            static renderingGapTime = 400;
 
             algorithmName = null;
             timelineLength = 0;
@@ -1192,8 +1314,32 @@
                 let algorithmHeadingVal = (this.algorithmName == 'rr') ? `${this.algorithmName.toUpperCase()} Algorithm (q=${this.quantum})` : `${this.algorithmName.toUpperCase()} Algorithm`;
                 domEle.algorithmHeading.innerText = algorithmHeadingVal;
 
-                if (ResultBox.renderingMode == Data.renderResultMode.immediate) this.renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue);
-                else this.renderResultPlayingMode(resultProcessList, cpuBox, ioBox, readyQueue);
+                let renderPromise = null;
+                if (ResultBox.renderingMode == Data.renderResultMode.immediate) renderPromise = this.renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue);
+                else renderPromise = this.renderResultPlayingMode(resultProcessList, cpuBox, ioBox, readyQueue);
+
+                // render finish
+                renderPromise.then(x => {
+                    const hoverClass = 'td-hover';
+                    this.onRenderResultFinish(resultProcessList);
+                    domEle.resultTableTimeColumns().forEach(item => {
+                        let time = item.getAttribute('time');
+                        item.addEventListener('mouseenter', (e) => {
+                            const columns = domEle.resultTableTimeColumnsAtTime(time);
+                            columns.forEach(column => {
+                                column.classList.add(hoverClass);
+                            })
+                        })
+
+                        item.addEventListener('mouseleave', (e) => {
+                            const columns = domEle.resultTableTimeColumnsAtTime(time);
+                            columns.forEach(column => {
+                                column.classList.remove(hoverClass);
+                            })
+                        })
+                    });
+
+                })
 
                 // display result box
                 domEle.resultBox.style.display = 'block';
@@ -1201,24 +1347,28 @@
             }
 
             renderResultImmediateMode(resultProcessList, cpuBox, ioBox, readyQueue) {
-                this.resultTable.render(resultProcessList, cpuBox, ioBox, readyQueue, this.timelineLength);
-                this.statisticTable.render(resultProcessList)
+                return new Promise(resolve => {
+                    this.resultTable.render(resultProcessList, cpuBox, ioBox, readyQueue, this.timelineLength);
+                    resolve(true);
+                })
             }
 
             renderResultPlayingMode(resultPList, cpuBox, ioBox, readyQueue) {
-                Helper.toggleControlBar(false);
-                this.isRendering = true;
+                return new Promise(resolve => {
+                    Helper.toggleControlBar(false);
+                    this.isRendering = true;
 
-                // render result table
-                this.renderResultTableInterval = setInterval(() => {
-                    this.resultTable.render(resultPList, cpuBox, ioBox, readyQueue, this.timelineLength, this.resultTableMaxTime);
+                    // render result table
+                    this.renderResultTableInterval = setInterval(() => {
+                        this.resultTable.render(resultPList, cpuBox, ioBox, readyQueue, this.timelineLength, this.resultTableMaxTime);
 
-                    // scroll to current running cell
-                    this.scrollToCurrentRunningCell()
+                        // scroll to current running cell
+                        this.scrollToCurrentRunningCell()
 
-                    if (this.resultTableMaxTime == cpuBox.length) this.onRenderResultFinish(resultPList);
-                    this.resultTableMaxTime++;
-                }, ResultBox.renderingGapTime);
+                        if (this.resultTableMaxTime == cpuBox.length) resolve(true)
+                        this.resultTableMaxTime++;
+                    }, ResultBox.renderingGapTime);
+                })
             }
 
             onRenderResultFinish(resultPList) {
@@ -1231,10 +1381,12 @@
             }
 
             scrollToCurrentRunningCell() {
-                const runningCell = document.querySelector('table#result-table tbody td:last-child');
-                const halfClientBoxWidth = domEle.resultBox.clientWidth / 2;
-                const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
-                if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultBox, leftOffset)
+                const runningCell = document.querySelector('table#result-table tbody tr:first-child td:last-child');
+                if (runningCell) {
+                    const halfClientBoxWidth = domEle.resultTableArea.clientWidth / 1;
+                    const leftOffset = runningCell.offsetLeft - halfClientBoxWidth;
+                    if (leftOffset > 0) Helper.scrollHorizontal(domEle.resultTableArea, leftOffset)
+                }
             }
 
             static clearTables() {
@@ -1252,6 +1404,7 @@
             timelineLength = 0;
             maxTime = 0;
             isRendering = false;
+            nPreCol = 2;
 
             constructor() {
             }
@@ -1260,6 +1413,15 @@
                 this.maxTime = maxTime;
                 this.timelineLength = timelineLength;
                 domEle.resultTableArea.innerHTML = this.getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime);
+
+                // highlight
+                if (maxTime < timelineLength)
+                    domEle.resultTableTimeColumnsAtTime(maxTime - 1).forEach(cell => {
+                        cell.classList.add('highlight-column');
+                        const cellHtml = '<div class="highlight-box"></div>' + cell.innerHTML;
+                        cell.innerHTML = cellHtml;
+                    })
+
             }
 
             getResultTableHtml(resultProcessList, cpuBox, ioBox, readyQueue, maxTime = -1) {
@@ -1273,7 +1435,7 @@
 
             getResultTableTHeadHtml(length) {
                 let thHtml = '';
-                for (let i = 0; i < length; i++) thHtml += `<th>${i}</th>`;
+                for (let i = 0; i < length; i++) thHtml += `<th time="${i}">${i}</th>`;
                 return `
         <thead>
             <tr>
@@ -1301,7 +1463,7 @@
                 }
                 let cpuLevelHtml = this.getCpuLevelHtml(pList, cpuBox, pColor);
                 let ioLevelHtml = this.getIoLevelHtml(pList, ioBox, pColor);
-                let readyQueueHtml = this.getReadyQueueHtml(pList, readyQueue);
+                let readyQueueHtml = this.getReadyQueueHtml(pList, readyQueue, pColor);
                 const tBodyHtml = `${cpuLevelHtml}${ioLevelHtml}${readyQueueHtml}`
                 return tBodyHtml;
             }
@@ -1319,19 +1481,19 @@
                         trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">CPU</th>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
                     } else {
                         trHtml = `
                 <tr>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
                     }
                     return trHtml;
                 })
-                const html = Helper.addSpacing(Helper.convertArrayToString(cpuTrArr));
+                const html = Helper.addSpacing(Helper.convertArrayToString(cpuTrArr), this.nPreCol, this.timelineLength);
                 return html;
             }
 
@@ -1347,26 +1509,27 @@
                         trHtml = `
                 <tr class="level-row">
                     <th class="level-name-cell" scope="row" rowspan="${pList.list.length}">IO</th>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
                     } else {
                         trHtml = `
                 <tr>
-                    <td class="process-name">${p.name}</td>
+                    <th class="process-name text-${pColor[p.name]}">${p.name}</th>
                     ${tdHtml}
                 </tr> `;
                     }
                     return trHtml;
                 })
-                const html = Helper.addSpacing(Helper.convertArrayToString(trArr));
+                const html = Helper.addSpacing(Helper.convertArrayToString(trArr), this.nPreCol, this.timelineLength);
                 return html;
             }
 
             drawTableCell(level, isCurrent, showLabel, rowP, pColor, time = null, isEmpty = false, prevPname = null, nextPname = null) {
                 let content = (showLabel && isCurrent) ? rowP.name : '';
                 let htmlClass = this.getTableCellHtmlClasses(level, time, time == rowP.arrival, showLabel, isCurrent, isEmpty, pColor[rowP.name], this.isWaitingForCpu(time, rowP.cpuRequestHistories), prevPname, nextPname)
-                return `<td class="${htmlClass}">${content}</td> `;
+                //let highlightBox = (this.isHighlightCell(time)) ? '<div class="highlight-box"></div>' : '';
+                return `<td class="${htmlClass}" time="${time}">${content}</td> `;
             }
 
             getTableCellHtmlClasses(level, time, isArrival, isShowLabel, isHoldingCpu, isEmpty, color, isWaitingForCpu, prevPname, nextPname) {
@@ -1378,13 +1541,17 @@
                     if (isArrival) htmlClass += ` border-dashes-left-${color}`;
                     if (isWaitingForCpu) htmlClass += ` border-dashes-bottom-${color}`;
                 }
-                htmlClass += this.getHtmlHighlightClassIfPassCondition(time);
+                //htmlClass += this.getHtmlHighlightClassIfPassCondition(time);
                 return htmlClass;
             }
 
             getHtmlHighlightClassIfPassCondition(time) {
-                const htmlClass = (time == this.maxTime - 1 && time < this.timelineLength - 1) ? ' border-solid-right-highlight' : '';
+                const htmlClass = (this.isHighlightCell(time)) ? ' highlight-column' : '';
                 return htmlClass;
+            }
+
+            isHighlightCell(time) {
+                return (time == this.maxTime - 1 && time < this.timelineLength - 1);
             }
 
             isWaitingForCpu(time, cpuRequestHistories) {
@@ -1405,24 +1572,29 @@
                 return `${pos}-dashes-border`;
             }
 
-            getReadyQueueHtml(pList, readyQueue) {
-                // create 3 row
+            getReadyQueueHtml(pList, readyQueue, pColor) {
                 let trHtml = '';
                 let tdArr = readyQueue.map((subQueue, subIndex) => {
                     let queueTdHtml = '';
                     for (let i = 0; i < pList.list.length; i++) {
-                        const value = subQueue[i] || '';
-                        queueTdHtml += `<tr><td >${value}</td></tr>`;
+                        let value = '';
+                        const queueProcesses = subQueue[i];
+                        if (queueProcesses) {
+                            const pName = queueProcesses[0];
+                            const pCpu = queueProcesses[1];
+                            value = `<div>${pName}<span class="process-cpu">${pCpu}</span></div>`;
+                        }
+
+                        queueTdHtml += `<tr><td class="">${value}</td></tr>`;
                     }
                     let queueTrHtml = `<table>${queueTdHtml}</table>`;
                     const htmlClass = this.getHtmlHighlightClassIfPassCondition(subIndex)
-                    return `<td  class="${htmlClass}">${queueTrHtml}</td> `;
+                    return `<td  class="${htmlClass}" time="${subIndex}">${queueTrHtml}</td> `;
                 })
                 let tdHtml = Helper.convertArrayToString(tdArr);
                 trHtml = `
             <tr id="ready-queue" class="level-row">
-                <th   class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
-                <td></td>
+                <th colspan="2"   class="level-name-cell" scope="row" rowspan="${pList.list.length}">Ready Queue</th>
                 ${tdHtml}
             </tr> `;
                 return trHtml;
@@ -1498,8 +1670,16 @@
         }
 
         class Helper {
-            static addSpacing(value, n = 1) {
-                const html = `${value}${'<tr ><td colspan="1000"><br/></td></tr><tr class="tr-spacing"><td colspan="1000"><br/></td></tr>'.repeat(n)}`
+            static addSpacing(value, nPreCol, timelineLength, n = 1) {
+                let html = value;
+                let tdHtml = `<td colspan="${nPreCol}"></td>`;
+                for (let i = 0; i < timelineLength; i++) tdHtml += `<td time="${i}"></td>`;
+                html += `   <tr>
+                        ${tdHtml}
+                    </tr>
+                    <tr class="tr-spacing">
+                        ${tdHtml}
+                    </tr>`.repeat(n);
                 return html;
             }
 
@@ -1538,7 +1718,7 @@
             this.formTable = new FormTable();
             this.processList = new ProcessList(new Data().defaultProcessArr);
             this.algorithmName = 'fcfs';
-            this.quantum = 2;
+            this.quantum = 5;
 
             // MAIN CODE HERE =============
             this.run = function () {
@@ -1597,6 +1777,7 @@
                     else {
                         // show error message
                         domEle.errorMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
+                        this.formTable.render(this.processList);
                     }
                 })
 
