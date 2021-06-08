@@ -212,6 +212,7 @@ div#result-box {
 }
 
 table#result-table>thead th {
+    text-align: left;
     min-width: 25px;
     /*
     min-width: 75px;
@@ -244,7 +245,8 @@ table#result-table .process-label {
 }
 
 table#result-table th.level-thead, table#result-table th.process-thead {
-    width: 150px;
+    min-width: 60px;
+    text-align: left;
 }
 
 /* COLUMN BACKGROUND
