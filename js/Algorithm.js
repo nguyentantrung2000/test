@@ -51,66 +51,34 @@ class Algorithm {
 
     // RUN ALGORITHM
     run() {
-        // loop timeline
+        // loop timeline: 0, 1, 2...
         this.timeline.forEach(time => {
-            // ready queue
             this.solveReadyQueue(time)
-            const checkSpecialConditionOfAlgorithm = this.checkSpecialConditionOfAlgorithm(this.readyQueue[time]);
-            if (this.cpuRemainingTime > 0 && checkSpecialConditionOfAlgorithm) this.cpuBox[time] = this.currentP.name;
-            else {
-
-                // choose algorithm to run
-                switch (this.algorithmName) {
-                    case 'fcfs':
-                        this.fcfs(time);
-                        break;
-                    case 'sjf':
-                        this.sjf(time);
-                        break;
-                    case 'srtf':
-                        this.srtf(time)
-                        break;
-                    case 'rr':
-                        this.roundRobin(time)
-                        break;
-                }
-            }
+            this.solveCpuBox(time)
             this.solveIoBox(time)
 
             // decrease cpu, quantum counter
             if (this.cpuRemainingTime > 0) this.cpuRemainingTime--;
             if (this.quantumCounter > 0) this.quantumCounter--;
-
             //this.logDataAtTimePoint(time);
         })
-        const lastCpuTime = this.getLastCpuTime();
-        this.cpuBox.splice(lastCpuTime + 1);
-        this.ioBox.splice(lastCpuTime + 1);
-        this.readyQueue.splice(lastCpuTime + 1);
 
-        // re assign process cpus and ios from processList
-        this.currentPList.list.forEach(p => {
-            const tempP = this.pList.getProcessByName(p.name);
-            p.cpus = [...tempP.cpus];
-            p.ios = [...tempP.ios];
-        })
-
+        this.postProcessing();
         this.currentPList.calculationTimes(this.cpuBox);
 
-        // LOG DATA
+        // log final data
         this.logFinalData();
         return [this.currentPList, this.cpuBox, this.ioBox, this.readyQueue];
     }
 
     // 4 ALGORITHMS
     fcfs(time) {
-        // grant io for current process
+        // grant io for current process if valid
         if (this.isGrantIo()) this.grantIo();
 
         if (this.readyQueue[time][0]) {
             // grant cpu for the top process of ready queue
             const p = this.readyQueue[time].shift();
-            //['p1', 1]
             this.currentP = this.currentPList.getProcessByName(p[0]);
             this.cpuBox[time] = this.currentP.name;
             this.cpuRemainingTime = this.currentP.cpus.shift();
@@ -118,7 +86,7 @@ class Algorithm {
     }
 
     sjf(time) {
-        // grant io for current process
+        // grant io for current process if valid
         if (this.isGrantIo()) this.grantIo();
 
         if (this.readyQueue[time][0]) {
@@ -131,7 +99,7 @@ class Algorithm {
     }
 
     srtf(time) {
-        // grant io for current process
+        // grant io for current process if valid
         if (this.isGrantIo()) this.grantIo();
 
         const grantCpu = () => {
@@ -149,20 +117,16 @@ class Algorithm {
             this.currentP.cpus.unshift(rest);
             this.readyQueue[time].push([this.currentP.name, rest]);
             grantCpu();
-        } else {
-            grantCpu();
-
-        }
+        } else grantCpu();
     }
 
     roundRobin(time) {
-        // grant io for current process 
-        // when time = 0 => currentProcess = null => not grant IO 
+        // grant io for current process if valid
         if (this.isGrantIo()) this.grantIo();
 
-        // grant cpu for the top process of ready queue
         const grantCpuForTopProcess = () => {
             if (this.readyQueue[time][0]) {
+                // grant cpu for the top process of ready queue
                 const p = this.readyQueue[time].shift();
                 this.currentP = this.currentPList.getProcessByName(p[0]);
                 this.cpuBox[time] = this.currentP.name;
@@ -188,6 +152,29 @@ class Algorithm {
             srtf = (this.cpuRemainingTime <= minCpuProcess?.cpus[0]);
         }
         return (roundRobin && srtf);
+    }
+
+    // SOLVE CPU BOX
+    solveCpuBox(time) {
+        const checkSpecialConditionOfAlgorithm = this.checkSpecialConditionOfAlgorithm(this.readyQueue[time]);
+        if (this.cpuRemainingTime > 0 && checkSpecialConditionOfAlgorithm) this.cpuBox[time] = this.currentP.name;
+        else {
+            // choose algorithm to run
+            switch (this.algorithmName) {
+                case 'fcfs':
+                    this.fcfs(time);
+                    break;
+                case 'sjf':
+                    this.sjf(time);
+                    break;
+                case 'srtf':
+                    this.srtf(time)
+                    break;
+                case 'rr':
+                    this.roundRobin(time)
+                    break;
+            }
+        }
     }
 
     // SOLVE IO BOX
@@ -279,6 +266,22 @@ class Algorithm {
             result[p.name] = -1;
         })
         return result;
+    }
+
+    postProcessing() {
+        // shorten boxes
+        const lastCpuTime = this.getLastCpuTime();
+        this.cpuBox.splice(lastCpuTime + 1);
+        this.ioBox.splice(lastCpuTime + 1);
+        this.readyQueue.splice(lastCpuTime + 1);
+
+        // reassign cpus, ios from input process list
+        this.currentPList.list.forEach(p => {
+            const tempP = this.pList.getProcessByName(p.name);
+            p.cpus = [...tempP.cpus];
+            p.ios = [...tempP.ios];
+        })
+
     }
 
     getLastCpuTime() {

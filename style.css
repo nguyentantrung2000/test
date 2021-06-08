@@ -459,3 +459,17 @@ input[type="radio"]:checked+label {
     font-weight: bold;
     
 }
+
+.form-table .process-no-cell > .delete-label{
+    display: none;
+}
+
+.form-table tr:hover .process-no-cell > .delete-label{
+    color: var(--danger);
+    display: inline;
+    cursor: pointer;
+}
+
+.form-table tr:hover .process-no-cell > .no-label{
+    display: none;
+}

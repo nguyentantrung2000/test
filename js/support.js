@@ -7,18 +7,18 @@ const domEle = {
     inputTableForm: document.getElementById('input-table-form'),
     optionForm: document.getElementById('option-form'),
 
-
     // box
     resultBox: document.querySelector('.box:last-child'),
 
     // table
     formTableInputs: () => document.querySelectorAll('#form-table-area table tbody input'),
+    formTableDeleteLabels: () => document.querySelectorAll('#form-table-area table tbody .delete-label'),
     resultTableTimeColumns: () => document.querySelectorAll('table#result-table th[time], table#result-table td[time]'),
     resultTableTimeColumnsAtTime: (time) => document.querySelectorAll(`table#result-table th[time="${time}"], table#result-table td[time="${time}"]`),
 
     // buttons
     addProcessBtn: document.getElementById('add-process-btn'),
-    requestBtn: document.getElementById('add-request-btn'),
+    taskBtn: document.getElementById('add-task-btn'),
     resetBtn: document.getElementById('reset-btn'),
     controlBarButtons: document.querySelectorAll('.control-bar button'),
 
@@ -43,18 +43,26 @@ class Data {
     }
 
     constructor() {
-        const lectureData = [
-            new Process('p1', 0, [3, 4], [4]),
-            new Process('p2', 1, [2, 2], [2]),
-            new Process('p3', 2, [1, 3], [1]),
-        ];
+        const processesData = {
+            empty: [
+                new Process('p1', 0, [0, 0], [0]),
+                new Process('p2', 0, [0, 0], [0]),
+                new Process('p3', 0, [0, 0], [0]),
+            ],
 
-        const exerciseData = [
-            new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
-            new Process('p2', 0, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
-            new Process('p3', 0, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
-        ];
-        this.defaultProcessArr = exerciseData;
+            lecture: [
+                new Process('p1', 0, [3, 4], [4]),
+                new Process('p2', 1, [2, 2], [2]),
+                new Process('p3', 2, [1, 3], [1]),
+            ],
+
+            exercise: [
+                new Process('p1', 0, [1, 1, 1, 1, 1], [4, 4, 4, 4]),
+                new Process('p2', 0, [2, 2, 3, 0, 0], [7, 7, 0, 0]),
+                new Process('p3', 0, [13, 2, 0, 0, 0], [6, 0, 0, 0]),
+            ],
+        }
+        this.defaultProcessArr = processesData.exercise;
     }
 }
 
@@ -72,6 +80,15 @@ class FormTable {
         domEle.formTableInputs().forEach(input => {
             input.addEventListener('change', () => {
                 this.loadProcessListFromTable();
+            })
+        })
+
+        domEle.formTableDeleteLabels().forEach(deleteLabel => {
+            deleteLabel.addEventListener('click', (e) => {
+                if (processList.list.length > 1) {
+                    processList.removeByName(e.target.getAttribute('process-name'));
+                    this.render(processList)
+                } else alert("Must have at least 1 process!")
             })
         })
     }
@@ -105,7 +122,14 @@ class FormTable {
         let rows = '';
         this.pList.list.forEach((item, index) => {
             let htmlStr = ` 
-            <th scope="row">${index + 1}</th>
+            <th scope="row" class="process-no-cell">
+                <span class="delete-label" process-name="${item.name}" title="Delete process">
+                    X
+                </span>
+                <span class="no-label">
+                    ${index + 1}
+                </span>
+            </th>
             <td class="process-name">
                 <input type="text" minlength="1" required="required" maxlength="2" name="process-name" value="${item.name}" />
                 
@@ -169,7 +193,7 @@ class FormTable {
 }
 
 class ResultBox {
-    static renderingMode = Data.renderResultMode.immediate
+    static renderingMode = Data.renderResultMode.playing
     static renderingGapTime = 400;
 
     algorithmName = null;
@@ -592,18 +616,18 @@ class Helper {
     }
 }
 
+let processList = new ProcessList(new Data().defaultProcessArr);
 new Main().run();
 function Main() {
 
     // initiate values
     this.formTable = new FormTable();
-    this.processList = new ProcessList(new Data().defaultProcessArr);
     this.algorithmName = 'fcfs';
     this.quantum = 5;
 
     // MAIN CODE HERE =============
     this.run = function () {
-        this.formTable.render(this.processList);
+        this.formTable.render(processList);
         this.setupControlEvents();
         this.setupFormEvents();
 
@@ -612,8 +636,10 @@ function Main() {
 
     // ALGORITHM
     this.runAlgorithm = function () {
-        const algorithm = new Algorithm(this.processList, this.algorithmName, this.quantum);
+        const algorithm = new Algorithm(processList, this.algorithmName, this.quantum);
         const [pList, cpuBox, ioBox, readyQueue] = algorithm.run();
+
+        // render result box
         const resultBox = new ResultBox();
         resultBox.render(pList, cpuBox, ioBox, readyQueue, this.algorithmName, this.quantum);
     }
@@ -622,20 +648,20 @@ function Main() {
     this.setupControlEvents = function () {
         // add process btn click
         domEle.addProcessBtn.addEventListener('click', () => {
-            this.processList.addNewProcess();
-            this.formTable.render(this.processList);
+            processList.addNewProcess();
+            this.formTable.render(processList);
         })
 
         // add cpu btn click
-        domEle.requestBtn.addEventListener('click', () => {
-            this.processList.addNewRequest();
-            this.formTable.render(this.processList);
+        domEle.taskBtn.addEventListener('click', () => {
+            processList.addNewTask();
+            this.formTable.render(processList);
         })
         domEle.resetBtn.addEventListener('click', () => {
             ResultBox.clear();
             domEle.errorMessageArea.innerHTML = '';
-            this.processList = new ProcessList(new Data().defaultProcessArr);
-            this.formTable.render(this.processList);
+            processList = new ProcessList(new Data().defaultProcessArr);
+            this.formTable.render(processList);
         })
     }
 
@@ -647,7 +673,7 @@ function Main() {
             ResultBox.renderingMode = formData.get('rendering-mode');
 
             //
-            const errMessage = this.processList.getError();
+            const errMessage = processList.getError();
             if (!errMessage) {
                 // clear error message
                 domEle.errorMessageArea.innerHTML = '';
@@ -658,7 +684,7 @@ function Main() {
             else {
                 // show error message
                 domEle.errorMessageArea.innerHTML = `<h3>${errMessage}</h3>`;
-                this.formTable.render(this.processList);
+                this.formTable.render(processList);
             }
         })
 

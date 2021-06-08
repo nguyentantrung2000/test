@@ -6,6 +6,10 @@ function ProcessList(list) {
         this.list.push(process);
     }
 
+    this.removeByName = function (name) {
+        this.list.splice(this.list.findIndex(item => item.name == name), 1);
+    }
+
     this.addNewProcess = function () {
         let process1 = this.list[0];
         let cpus = process1.cpus.map(item => 0);
@@ -14,9 +18,9 @@ function ProcessList(list) {
         this.add(process);
     }
 
-    this.addNewRequest = function () {
+    this.addNewTask = function () {
         this.list.forEach(item => {
-            item.addNewRequest();
+            item.addNewTask();
         })
     }
 
@@ -154,7 +158,7 @@ function Process(name, arrival, cpus, ios, cpuRequests = null) {
     });
 
     // ADD REQUEST
-    this.addNewRequest = function () {
+    this.addNewTask = function () {
         this.cpus.push(0);
         this.ios.push(0);
     }
