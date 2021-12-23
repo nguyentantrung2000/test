@@ -78,6 +78,7 @@ class Algorithm {
 
         if (this.readyQueue[time][0]) {
             // grant cpu for the top process of ready queue
+            //lay thg dau hang doi 
             const p = this.readyQueue[time].shift();
             this.currentP = this.currentPList.getProcessByName(p[0]);
             this.cpuBox[time] = this.currentP.name;
